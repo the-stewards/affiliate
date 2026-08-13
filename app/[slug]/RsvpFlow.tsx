@@ -4,6 +4,28 @@ import { useState, useRef, useEffect } from "react";
 
 type Step = "rsvp" | "offer" | "signup" | "signup-success";
 
+// Plain fetch has no timeout — on flaky wifi a request can hang indefinitely,
+// leaving the user stuck on "Saving..." with no way to recover short of a
+// refresh. This caps how long we wait and surfaces a clear, actionable error
+// instead. Retrying after a timeout is safe: both /api/rsvp and
+// /api/affiliates enforce uniqueness server-side, so a duplicate attempt
+// (in case the first one actually went through) comes back as a clear
+// "already RSVP'd" / "already registered" error, never a silent dupe.
+async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs: number) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new Error("That's taking too long — check your connection and try again.");
+    }
+    throw new Error("Couldn't reach the server — check your connection and try again.");
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export default function RsvpFlow({
   affiliateSlug,
   affiliateName,
@@ -75,18 +97,22 @@ function RsvpForm({
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch("/api/rsvp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          smsConsent,
-          affiliateSlug,
-          website: honeypotRef.current?.value || "",
-        }),
-      });
+      const res = await fetchWithTimeout(
+        "/api/rsvp",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            email,
+            phone,
+            smsConsent,
+            affiliateSlug,
+            website: honeypotRef.current?.value || "",
+          }),
+        },
+        12000
+      );
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "Something went wrong.");
@@ -94,8 +120,8 @@ function RsvpForm({
         return;
       }
       onDone();
-    } catch {
-      setError("Network error — try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error — try again.");
       setSubmitting(false);
     }
   }
@@ -240,7 +266,11 @@ function SignupForm({ referredBySlug, onDone }: { referredBySlug: string; onDone
     setSlugStatus("checking");
     const handle = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/affiliates/check-slug?slug=${encodeURIComponent(slug)}`);
+        const res = await fetchWithTimeout(
+          `/api/affiliates/check-slug?slug=${encodeURIComponent(slug)}`,
+          {},
+          8000
+        );
         const data = await res.json();
         if (!data.available && (data.reason === "invalid_format")) setSlugStatus("invalid");
         else setSlugStatus(data.available ? "available" : "taken");
@@ -256,18 +286,22 @@ function SignupForm({ referredBySlug, onDone }: { referredBySlug: string; onDone
     setError(null);
     setSubmitting(true);
     try {
-      const res = await fetch("/api/affiliates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          requestedSlug: slug,
-          referredBySlug,
-          website: honeypotRef.current?.value || "",
-        }),
-      });
+      const res = await fetchWithTimeout(
+        "/api/affiliates",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            email,
+            phone,
+            requestedSlug: slug,
+            referredBySlug,
+            website: honeypotRef.current?.value || "",
+          }),
+        },
+        12000
+      );
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || "Something went wrong.");
@@ -275,8 +309,8 @@ function SignupForm({ referredBySlug, onDone }: { referredBySlug: string; onDone
         return;
       }
       onDone(data.slug);
-    } catch {
-      setError("Network error — try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error — try again.");
       setSubmitting(false);
     }
   }
