@@ -22,8 +22,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const { name, email, phone, smsConsent, affiliateSlug, website } = body as {
-    name?: string;
+  const { firstName, lastName, email, phone, smsConsent, affiliateSlug, website } = body as {
+    firstName?: string;
+    lastName?: string;
     email?: string;
     phone?: string;
     smsConsent?: boolean;
@@ -37,8 +38,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  if (!name?.trim() || !email?.trim() || !affiliateSlug?.trim()) {
-    return NextResponse.json({ error: "Name, email, and affiliate are required." }, { status: 400 });
+  if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !affiliateSlug?.trim()) {
+    return NextResponse.json(
+      { error: "First name, last name, email, and affiliate are required." },
+      { status: 400 }
+    );
   }
 
   const emailNormalized = email.trim().toLowerCase();
@@ -61,21 +65,25 @@ export async function POST(req: NextRequest) {
 
   try {
     const inserted = await sql`
-      insert into rsvps (affiliate_id, name, email, phone, sms_consent)
-      values (${affiliate.id}, ${name.trim()}, ${emailNormalized}, ${phone?.trim() || null}, ${!!smsConsent})
-      returning id
+      insert into rsvps (affiliate_id, first_name, last_name, email, phone, sms_consent)
+      values (${affiliate.id}, ${firstName.trim()}, ${lastName.trim()}, ${emailNormalized}, ${phone?.trim() || null}, ${!!smsConsent})
+      returning id, created_at
     `;
 
     const countRows = await sql`
       select count(*)::int as count from rsvps where affiliate_id = ${affiliate.id}
     `;
 
+    // Field names match the Google Sheet columns this feeds into via
+    // Zapier: First Name, Last Name, Email, Phone, RSVP date, Affiliate ref code.
     await queueNotification("new_rsvp", {
       affiliate_name: affiliate.display_name,
       affiliate_slug: affiliate.slug,
-      rsvp_name: name.trim(),
+      rsvp_first_name: firstName.trim(),
+      rsvp_last_name: lastName.trim(),
       rsvp_email: emailNormalized,
       rsvp_phone: phone?.trim() || null,
+      rsvp_date: inserted[0]?.created_at ?? new Date().toISOString(),
       affiliate_total_count: countRows[0]?.count ?? null,
     });
 

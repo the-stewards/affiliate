@@ -84,7 +84,8 @@ function RsvpForm({
   affiliateName: string;
   onDone: () => void;
 }) {
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [smsConsent, setSmsConsent] = useState(false);
@@ -103,7 +104,8 @@ function RsvpForm({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name,
+            firstName,
+            lastName,
             email,
             phone,
             smsConsent,
@@ -143,10 +145,16 @@ function RsvpForm({
         style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
       />
 
-      <label className="field">
-        <span>Name</span>
-        <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
-      </label>
+      <div className="nameRow">
+        <label className="field">
+          <span>First name</span>
+          <input required value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First" />
+        </label>
+        <label className="field">
+          <span>Last name</span>
+          <input required value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last" />
+        </label>
+      </div>
       <label className="field">
         <span>Email</span>
         <input
@@ -183,10 +191,13 @@ function RsvpForm({
       <style>{`
         .title { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; margin: 0 0 6px; }
         .sub { color: var(--slate); margin: 0 0 20px; font-size: 15px; line-height: 1.5; }
+        .nameRow { display: flex; gap: 10px; }
+        .nameRow .field { flex: 1; min-width: 0; }
         .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; font-size: 13px; font-weight: 600; color: var(--ink); }
         .field input {
           font-size: 16px; padding: 12px 14px; border-radius: 10px;
           border: 1.5px solid var(--line); font-family: var(--font-body);
+          width: 100%;
         }
         .field input:focus { border-color: var(--ink); }
         .checkboxField { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--slate); margin-bottom: 16px; }

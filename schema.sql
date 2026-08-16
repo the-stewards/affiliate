@@ -19,7 +19,8 @@ create unique index if not exists affiliates_email_lower_idx on affiliates (lowe
 create table if not exists rsvps (
   id              bigserial primary key,
   affiliate_id    bigint not null references affiliates(id),
-  name            text not null,
+  first_name      text not null,
+  last_name       text not null,
   email           text not null,
   phone           text,
   sms_consent     boolean not null default false,
