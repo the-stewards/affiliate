@@ -11,7 +11,8 @@ const FALLBACK_SLUG = process.env.EMBED_FALLBACK_SLUG || "nick";
 
 async function getAffiliate(slug: string) {
   const rows = await sql`
-    select slug, display_name from affiliates where lower(slug) = ${slug.toLowerCase()}
+    select slug, display_name, (select count(*)::int from rsvps) as total_rsvp_count
+    from affiliates where lower(slug) = ${slug.toLowerCase()}
   `;
   return rows[0] || null;
 }
@@ -30,7 +31,12 @@ export default async function EmbedPage({ searchParams }: { searchParams: { ref?
 
   return (
     <div style={{ padding: 16 }}>
-      <RsvpFlow affiliateSlug={affiliate.slug} affiliateName={affiliate.display_name} showIntro={false} />
+      <RsvpFlow
+        affiliateSlug={affiliate.slug}
+        affiliateName={affiliate.display_name}
+        showIntro={false}
+        totalRsvpCount={affiliate.total_rsvp_count}
+      />
     </div>
   );
 }

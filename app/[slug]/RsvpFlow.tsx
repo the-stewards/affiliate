@@ -30,6 +30,7 @@ export default function RsvpFlow({
   affiliateSlug,
   affiliateName,
   showIntro = true,
+  totalRsvpCount,
 }: {
   affiliateSlug: string;
   affiliateName: string;
@@ -37,6 +38,8 @@ export default function RsvpFlow({
   // /[slug] page but not inside the embed, which sits on a generic hub page
   // with no per-visitor personalization context.
   showIntro?: boolean;
+  // Event-wide RSVP count, shown as social proof on the initial form only.
+  totalRsvpCount?: number;
 }) {
   const [step, setStep] = useState<Step>("rsvp");
   const [newSlug, setNewSlug] = useState<string | null>(null);
@@ -48,6 +51,7 @@ export default function RsvpFlow({
           affiliateSlug={affiliateSlug}
           affiliateName={affiliateName}
           showIntro={showIntro}
+          totalRsvpCount={totalRsvpCount}
           onDone={() => setStep("offer")}
         />
       )}
@@ -85,11 +89,13 @@ function RsvpForm({
   affiliateSlug,
   affiliateName,
   showIntro,
+  totalRsvpCount,
   onDone,
 }: {
   affiliateSlug: string;
   affiliateName: string;
   showIntro: boolean;
+  totalRsvpCount?: number;
   onDone: () => void;
 }) {
   const [firstName, setFirstName] = useState("");
@@ -142,6 +148,12 @@ function RsvpForm({
       {showIntro && (
         <p className="sub">
           {affiliateName} is holding a spot for you on the Rebel launch call.
+        </p>
+      )}
+      {typeof totalRsvpCount === "number" && totalRsvpCount > 0 && (
+        <p className="headcount">
+          <strong>{totalRsvpCount.toLocaleString()}</strong>{" "}
+          {totalRsvpCount === 1 ? "person has" : "people have"} already saved their spot
         </p>
       )}
 
@@ -201,6 +213,11 @@ function RsvpForm({
       <style>{`
         .title { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; margin: 0 0 16px; }
         .sub { color: var(--slate); margin: 0 0 20px; font-size: 15px; line-height: 1.5; }
+        .headcount {
+          font-family: var(--font-mono); font-size: 13px; color: var(--slate);
+          margin: 0 0 20px;
+        }
+        .headcount strong { color: var(--amber); font-weight: 700; }
         .nameRow { display: flex; gap: 10px; }
         .nameRow .field { flex: 1; min-width: 0; }
         .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; font-size: 13px; font-weight: 600; color: var(--ink); }

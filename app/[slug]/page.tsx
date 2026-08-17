@@ -9,7 +9,8 @@ async function getAffiliate(slug: string) {
   if (RESERVED_SLUGS.has(slug.toLowerCase())) return null;
   const rows = await sql`
     select a.id, a.slug, a.display_name,
-      (select count(*)::int from rsvps r where r.affiliate_id = a.id) as rsvp_count
+      (select count(*)::int from rsvps r where r.affiliate_id = a.id) as rsvp_count,
+      (select count(*)::int from rsvps) as total_rsvp_count
     from affiliates a
     where lower(a.slug) = ${slug.toLowerCase()}
   `;
@@ -31,7 +32,11 @@ export default async function AffiliatePage({ params }: { params: { slug: string
         </div>
       </div>
 
-      <RsvpFlow affiliateSlug={affiliate.slug} affiliateName={affiliate.display_name} />
+      <RsvpFlow
+        affiliateSlug={affiliate.slug}
+        affiliateName={affiliate.display_name}
+        totalRsvpCount={affiliate.total_rsvp_count}
+      />
 
       <style>{`
         .wrap {
