@@ -7,3 +7,6 @@
 
 [functions."send-notifications"]
   schedule = "* * * * *"
+
+[functions."health-check"]
+  schedule = "*/5 * * * *"

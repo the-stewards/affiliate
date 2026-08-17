@@ -52,3 +52,16 @@ create table if not exists notifications (
 );
 
 create index if not exists notifications_unsent_idx on notifications (created_at) where sent_at is null;
+
+-- Singleton row tracking whether the last health check saw the site up or
+-- down, so the scheduled health-check function (see
+-- netlify/functions/health-check.js) only alerts on state CHANGES - once
+-- when it goes down, once when it recovers - instead of re-alerting every
+-- few minutes for the same ongoing outage.
+create table if not exists health_state (
+  id          int primary key default 1,
+  is_down     boolean not null default false,
+  updated_at  timestamptz not null default now(),
+  check (id = 1)
+);
+insert into health_state (id, is_down) values (1, false) on conflict (id) do nothing;
