@@ -146,12 +146,12 @@ function RsvpForm({
     <form onSubmit={handleSubmit}>
       <h2 className="title">Save your seat</h2>
       {typeof totalRsvpCount === "number" && totalRsvpCount > 0 && (
-        <div className="headcountPill">
-          <span className="pulse" />
-          <span className="headcountNum">{totalRsvpCount.toLocaleString()}</span>
-          <span className="headcountLabel">
-            {totalRsvpCount === 1 ? "person has" : "people have"} saved their spot
-          </span>
+        <div className="headcountRow">
+          <div className="headcountPill">
+            <span className="pulse" />
+            <span className="headcountNum">{totalRsvpCount.toLocaleString()}</span>
+            <span className="headcountLabel">are coming to the Rebel Event Launch</span>
+          </div>
         </div>
       )}
       {showIntro && (
@@ -216,10 +216,11 @@ function RsvpForm({
       <style>{`
         .title { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; margin: 0 0 14px; }
         .sub { color: var(--slate); margin: 0 0 20px; font-size: 15px; line-height: 1.5; }
+        .headcountRow { text-align: center; margin: 0 0 18px; }
         .headcountPill {
           display: inline-flex; align-items: center; gap: 9px;
           background: rgba(111,9,137,0.08); border: 1.5px solid rgba(111,9,137,0.3);
-          border-radius: 999px; padding: 9px 16px 9px 14px; margin: 0 0 18px;
+          border-radius: 999px; padding: 9px 16px 9px 14px;
         }
         .pulse {
           width: 8px; height: 8px; border-radius: 50%; background: var(--rebel-red);
