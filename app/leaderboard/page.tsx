@@ -41,15 +41,43 @@ export default function LeaderboardPage() {
       ) : rows.length === 0 ? (
         <p className="empty">No RSVPs yet — be the first.</p>
       ) : (
-        <ol className="board">
-          {rows.map((row, i) => (
-            <li key={row.slug} className={`row rank-${i + 1 <= 3 ? i + 1 : "n"}`}>
-              <span className="rank">{i + 1}</span>
-              <span className="name">{row.display_name}</span>
-              <span className="count">{row.rsvp_count}</span>
-            </li>
-          ))}
-        </ol>
+        <div className="lists">
+          {/* #1 — full-width hero card */}
+          <div className="hero">
+            <span className="heroRank">1</span>
+            <span className="heroName">{rows[0].display_name}</span>
+            <span className="heroCount">{rows[0].rsvp_count}</span>
+          </div>
+
+          {/* #2 and #3 — split 50/50 */}
+          {rows.length > 1 && (
+            <div className="podiumRow">
+              {rows.slice(1, 3).map((row, i) => (
+                <div key={row.slug} className="podiumCard">
+                  <span className="podiumRank">{i + 2}</span>
+                  <span className="podiumName">{row.display_name}</span>
+                  <span className="podiumCount">{row.rsvp_count}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* #4+ — standard rows, purple trim through #10, white trim after */}
+          {rows.length > 3 && (
+            <ol className="board">
+              {rows.slice(3).map((row, i) => {
+                const rank = i + 4;
+                return (
+                  <li key={row.slug} className={`row ${rank <= 10 ? "tier-purple" : "tier-white"}`}>
+                    <span className="rank">{rank}</span>
+                    <span className="name">{row.display_name}</span>
+                    <span className="count">{row.rsvp_count}</span>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </div>
       )}
 
       <style>{`
@@ -73,22 +101,60 @@ export default function LeaderboardPage() {
         }
         .updated { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.5); }
         .empty { color: rgba(255,255,255,0.6); font-family: var(--font-mono); }
-        .board {
-          width: 100%; max-width: 560px; list-style: none; margin: 0; padding: 0;
-          display: flex; flex-direction: column; gap: 8px;
+        .lists {
+          width: 100%; max-width: 560px;
+          display: flex; flex-direction: column; gap: 10px;
         }
+
+        /* #1 — exaggerated, full-width */
+        .hero {
+          display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px;
+          background: var(--ink-soft); border: 2px solid var(--rebel-red); border-radius: 14px;
+          padding: 22px 26px;
+        }
+        .heroRank {
+          font-family: var(--font-mono); font-weight: 700; color: var(--rebel-red); font-size: 22px;
+        }
+        .heroName { font-weight: 700; font-size: clamp(20px, 5vw, 26px); }
+        .heroCount {
+          font-family: var(--font-mono); font-weight: 700; font-size: clamp(28px, 7vw, 36px);
+          color: var(--rebel-red); font-variant-numeric: tabular-nums;
+        }
+
+        /* #2 and #3 — exaggerated, 50/50 split */
+        .podiumRow { display: flex; gap: 10px; }
+        .podiumCard {
+          flex: 1; min-width: 0;
+          display: flex; flex-direction: column; gap: 4px;
+          background: var(--ink-soft); border: 2px solid var(--rebel-red); border-radius: 12px;
+          padding: 16px 18px;
+        }
+        .podiumRank {
+          font-family: var(--font-mono); font-weight: 700; color: var(--rebel-red); font-size: 17px;
+        }
+        .podiumName { font-weight: 600; font-size: 17px; }
+        .podiumCount {
+          font-family: var(--font-mono); font-weight: 700; font-size: 24px; color: var(--rebel-red);
+          font-variant-numeric: tabular-nums;
+        }
+
+        /* #4+ — standard rows, tiered trim color */
+        .board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
         .row {
           display: grid; grid-template-columns: 40px 1fr auto; align-items: center;
           background: var(--ink-soft); border-radius: 10px; padding: 14px 18px;
+          border: 1.5px solid transparent;
         }
+        .tier-purple { border-color: var(--amber); }
+        .tier-white { border-color: var(--ivory); }
         .rank {
           font-family: var(--font-mono); font-weight: 700; color: rgba(255,255,255,0.5); font-size: 15px;
         }
-        .rank-1 .rank, .rank-2 .rank, .rank-3 .rank { color: var(--amber); }
-        .rank-1 { border: 1.5px solid var(--amber); }
+        .tier-purple .rank, .tier-purple .count { color: var(--amber); }
+        .tier-white .rank, .tier-white .count { color: var(--ivory); }
         .name { font-weight: 600; font-size: 16px; }
         .count {
-          font-family: var(--font-mono); font-weight: 700; font-size: 20px; color: var(--amber);
+          font-family: var(--font-mono); font-weight: 700; font-size: 20px;
           font-variant-numeric: tabular-nums;
         }
       `}</style>
