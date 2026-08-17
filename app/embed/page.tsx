@@ -30,7 +30,7 @@ export default async function EmbedPage({ searchParams }: { searchParams: { ref?
 
   return (
     <div style={{ padding: 16 }}>
-      <RsvpFlow affiliateSlug={affiliate.slug} affiliateName={affiliate.display_name} />
+      <RsvpFlow affiliateSlug={affiliate.slug} affiliateName={affiliate.display_name} showIntro={false} />
     </div>
   );
 }

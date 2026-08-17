@@ -29,9 +29,14 @@ async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs: nu
 export default function RsvpFlow({
   affiliateSlug,
   affiliateName,
+  showIntro = true,
 }: {
   affiliateSlug: string;
   affiliateName: string;
+  // The "[Name] is holding a spot for you" line makes sense on the personal
+  // /[slug] page but not inside the embed, which sits on a generic hub page
+  // with no per-visitor personalization context.
+  showIntro?: boolean;
 }) {
   const [step, setStep] = useState<Step>("rsvp");
   const [newSlug, setNewSlug] = useState<string | null>(null);
@@ -42,6 +47,7 @@ export default function RsvpFlow({
         <RsvpForm
           affiliateSlug={affiliateSlug}
           affiliateName={affiliateName}
+          showIntro={showIntro}
           onDone={() => setStep("offer")}
         />
       )}
@@ -78,10 +84,12 @@ export default function RsvpFlow({
 function RsvpForm({
   affiliateSlug,
   affiliateName,
+  showIntro,
   onDone,
 }: {
   affiliateSlug: string;
   affiliateName: string;
+  showIntro: boolean;
   onDone: () => void;
 }) {
   const [firstName, setFirstName] = useState("");
@@ -131,9 +139,11 @@ function RsvpForm({
   return (
     <form onSubmit={handleSubmit}>
       <h2 className="title">Save your seat</h2>
-      <p className="sub">
-        {affiliateName} is holding a spot for you on the Rebel launch call.
-      </p>
+      {showIntro && (
+        <p className="sub">
+          {affiliateName} is holding a spot for you on the Rebel launch call.
+        </p>
+      )}
 
       {/* honeypot — hidden from real users via CSS, bots tend to fill every field */}
       <input
@@ -189,7 +199,7 @@ function RsvpForm({
       </button>
 
       <style>{`
-        .title { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; margin: 0 0 6px; }
+        .title { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; margin: 0 0 16px; }
         .sub { color: var(--slate); margin: 0 0 20px; font-size: 15px; line-height: 1.5; }
         .nameRow { display: flex; gap: 10px; }
         .nameRow .field { flex: 1; min-width: 0; }
