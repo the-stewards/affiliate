@@ -6,6 +6,7 @@ export const RESERVED_SLUGS = new Set([
   "api",
   "join",
   "rsvp",
+  "embed",
   "affiliate",
   "affiliates",
   "login",
