@@ -145,15 +145,18 @@ function RsvpForm({
   return (
     <form onSubmit={handleSubmit}>
       <h2 className="title">Save your seat</h2>
+      {typeof totalRsvpCount === "number" && totalRsvpCount > 0 && (
+        <div className="headcountPill">
+          <span className="pulse" />
+          <span className="headcountNum">{totalRsvpCount.toLocaleString()}</span>
+          <span className="headcountLabel">
+            {totalRsvpCount === 1 ? "person has" : "people have"} saved their spot
+          </span>
+        </div>
+      )}
       {showIntro && (
         <p className="sub">
           {affiliateName} is holding a spot for you on the Rebel launch call.
-        </p>
-      )}
-      {typeof totalRsvpCount === "number" && totalRsvpCount > 0 && (
-        <p className="headcount">
-          <strong>{totalRsvpCount.toLocaleString()}</strong>{" "}
-          {totalRsvpCount === 1 ? "person has" : "people have"} already saved their spot
         </p>
       )}
 
@@ -211,13 +214,29 @@ function RsvpForm({
       </button>
 
       <style>{`
-        .title { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; margin: 0 0 16px; }
+        .title { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; margin: 0 0 14px; }
         .sub { color: var(--slate); margin: 0 0 20px; font-size: 15px; line-height: 1.5; }
-        .headcount {
-          font-family: var(--font-mono); font-size: 13px; color: var(--slate);
-          margin: 0 0 20px;
+        .headcountPill {
+          display: inline-flex; align-items: center; gap: 9px;
+          background: rgba(111,9,137,0.08); border: 1.5px solid rgba(111,9,137,0.3);
+          border-radius: 999px; padding: 9px 16px 9px 14px; margin: 0 0 18px;
         }
-        .headcount strong { color: var(--amber); font-weight: 700; }
+        .pulse {
+          width: 8px; height: 8px; border-radius: 50%; background: var(--rebel-red);
+          flex-shrink: 0; animation: headcountPulse 1.6s ease-in-out infinite;
+        }
+        @keyframes headcountPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.35; transform: scale(0.8); }
+        }
+        .headcountNum {
+          font-family: var(--font-mono); font-weight: 700; font-size: 19px; color: var(--amber);
+          font-variant-numeric: tabular-nums;
+        }
+        .headcountLabel {
+          font-family: var(--font-mono); font-size: 12px; color: var(--ink);
+          text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;
+        }
         .nameRow { display: flex; gap: 10px; }
         .nameRow .field { flex: 1; min-width: 0; }
         .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; font-size: 13px; font-weight: 600; color: var(--ink); }
