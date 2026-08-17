@@ -71,8 +71,8 @@ export default function LeaderboardPage() {
           font-family: var(--font-display); font-size: clamp(36px, 9vw, 56px);
           text-transform: uppercase; margin: 6px 0 4px;
         }
-        .updated { font-family: var(--font-mono); font-size: 12px; color: rgba(247,243,234,0.5); }
-        .empty { color: rgba(247,243,234,0.6); font-family: var(--font-mono); }
+        .updated { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.5); }
+        .empty { color: rgba(255,255,255,0.6); font-family: var(--font-mono); }
         .board {
           width: 100%; max-width: 560px; list-style: none; margin: 0; padding: 0;
           display: flex; flex-direction: column; gap: 8px;
@@ -82,7 +82,7 @@ export default function LeaderboardPage() {
           background: var(--ink-soft); border-radius: 10px; padding: 14px 18px;
         }
         .rank {
-          font-family: var(--font-mono); font-weight: 700; color: rgba(247,243,234,0.5); font-size: 15px;
+          font-family: var(--font-mono); font-weight: 700; color: rgba(255,255,255,0.5); font-size: 15px;
         }
         .rank-1 .rank, .rank-2 .rank, .rank-3 .rank { color: var(--amber); }
         .rank-1 { border: 1.5px solid var(--amber); }

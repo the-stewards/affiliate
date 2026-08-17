@@ -41,7 +41,7 @@ export default async function AffiliatePage({ params }: { params: { slug: string
           align-items: center;
           padding: 48px 20px 80px;
           background:
-            radial-gradient(circle at 15% 10%, rgba(255,182,39,0.10), transparent 45%),
+            radial-gradient(circle at 15% 10%, rgba(111,9,137,0.10), transparent 45%),
             var(--ivory);
         }
         .badge {
@@ -52,7 +52,7 @@ export default async function AffiliatePage({ params }: { params: { slug: string
           border-radius: 18px;
           padding: 32px 28px 26px;
           text-align: center;
-          box-shadow: 0 18px 40px rgba(20,33,61,0.28);
+          box-shadow: 0 18px 40px rgba(0,0,0,0.28);
           position: relative;
           overflow: hidden;
         }
@@ -62,8 +62,8 @@ export default async function AffiliatePage({ params }: { params: { slug: string
           inset: 0;
           background: repeating-linear-gradient(
             135deg,
-            rgba(255,182,39,0.06) 0px,
-            rgba(255,182,39,0.06) 2px,
+            rgba(111,9,137,0.06) 0px,
+            rgba(111,9,137,0.06) 2px,
             transparent 2px,
             transparent 14px
           );
@@ -97,7 +97,7 @@ export default async function AffiliatePage({ params }: { params: { slug: string
           font-size: 12px;
           text-transform: uppercase;
           letter-spacing: 0.08em;
-          color: rgba(247,243,234,0.6);
+          color: rgba(255,255,255,0.6);
         }
         .scoreNum {
           font-family: var(--font-mono);

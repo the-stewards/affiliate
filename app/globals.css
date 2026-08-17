@@ -1,12 +1,16 @@
 :root {
-  --ink: #14213d;
-  --ink-soft: #1f2f52;
-  --ivory: #f7f3ea;
-  --amber: #ffb627;
-  --rebel-red: #c1272d;
+  /* Names are historical (from the original navy/amber/red theme) - values
+     are this year's palette. --amber is now purple, --rebel-red is now
+     orange. Kept the names to avoid touching every usage site for a
+     rename with zero functional benefit. */
+  --ink: #000000;
+  --ink-soft: #1a1a1a;
+  --ivory: #ffffff;
+  --amber: #6f0989;
+  --rebel-red: #ff4500;
   --slate: #6b7280;
   --success: #2e7d32;
-  --line: rgba(20, 33, 61, 0.12);
+  --line: rgba(0, 0, 0, 0.12);
 
   --font-display: "Anton", "Arial Narrow", sans-serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;

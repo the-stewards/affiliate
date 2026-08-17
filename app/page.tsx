@@ -21,7 +21,7 @@ export default function Home() {
       <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(32px,8vw,52px)", textTransform: "uppercase", margin: "8px 0 20px" }}>
         You need a link
       </h1>
-      <p style={{ color: "rgba(247,243,234,0.7)", maxWidth: 420, marginBottom: 24 }}>
+      <p style={{ color: "rgba(255,255,255,0.7)", maxWidth: 420, marginBottom: 24 }}>
         This site works through a personal invite link. If someone sent you here directly, ask them for their link — or check the leaderboard.
       </p>
       <Link
