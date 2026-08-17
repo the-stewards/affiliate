@@ -3,7 +3,7 @@
 
 create table if not exists affiliates (
   id              bigserial primary key,
-  slug            text unique not null,
+  slug            text not null,
   display_name    text not null,
   email           text not null,
   phone           text,
@@ -12,7 +12,12 @@ create table if not exists affiliates (
   created_at      timestamptz not null default now()
 );
 
--- Case-insensitive uniqueness so "Ember" and "ember" can't collide.
+-- Case-insensitive uniqueness so "Ember" and "ember" can't collide. This is
+-- the ONLY uniqueness constraint on slug (deliberately not `unique` on the
+-- column itself) — every slug reaching an insert is already lowercase, so a
+-- second case-sensitive constraint would just fire first on every real
+-- collision and never surface as "affiliates_slug_lower_idx", breaking the
+-- collision-retry logic in app/api/affiliates/route.ts that matches on it.
 create unique index if not exists affiliates_slug_lower_idx on affiliates (lower(slug));
 create unique index if not exists affiliates_email_lower_idx on affiliates (lower(email));
 
