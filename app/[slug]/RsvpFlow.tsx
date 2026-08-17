@@ -460,15 +460,53 @@ function SignupSuccess({ newSlug }: { newSlug: string | null }) {
           padding: "14px 16px",
           fontSize: 16,
           wordBreak: "break-all",
-          marginBottom: 14,
+          marginBottom: 12,
         }}
       >
         {link}
       </div>
-      <p style={{ color: "var(--slate)", fontSize: 15, lineHeight: 1.5 }}>
+      <CopyLinkButton link={link} />
+      <p style={{ color: "var(--slate)", fontSize: 15, lineHeight: 1.5, marginTop: 14 }}>
         Share it anywhere. Every RSVP through your link counts toward your score on the leaderboard.
-        We've sent a copy of this link to your email.
+        Bookmark your link too — visiting it again is also how you check your live count later.
       </p>
     </div>
+  );
+}
+
+function CopyLinkButton({ link }: { link: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(`https://${link}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API can fail (permissions, insecure context) — the link
+      // text above is already visible and selectable as a fallback.
+    }
+  }
+
+  return (
+    <button
+      onClick={handleCopy}
+      style={{
+        fontFamily: "var(--font-mono)",
+        fontWeight: 700,
+        fontSize: 13,
+        letterSpacing: "0.02em",
+        textTransform: "uppercase",
+        padding: "9px 18px",
+        borderRadius: 8,
+        border: "1.5px solid var(--line)",
+        background: copied ? "var(--success)" : "transparent",
+        color: copied ? "#fff" : "var(--ink)",
+        borderColor: copied ? "var(--success)" : "var(--line)",
+        transition: "all 0.15s ease",
+      }}
+    >
+      {copied ? "Copied ✓" : "Copy link"}
+    </button>
   );
 }
