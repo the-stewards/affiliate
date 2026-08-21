@@ -265,14 +265,14 @@ function RsvpForm({
 function Offer({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
   return (
     <div>
-      <p className="check">✓ You're in.</p>
-      <h2 className="title">Want your own scoreboard?</h2>
+      <p className="check">✓ Spot saved for the Rebel 2027 Launch Call</p>
+      <h2 className="title">Don't just attend — compete</h2>
       <p className="sub">
-        Get a personal link, invite people yourself, and see your name climb the leaderboard.
+        Join the Rebel Ambassador Games, grab your link, and see how many you can bring.
       </p>
       <div className="row">
         <button className="cta" onClick={onYes}>
-          Join the game
+          Join the Games
         </button>
         <button className="secondary" onClick={onNo}>
           No thanks
