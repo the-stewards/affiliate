@@ -1,5 +1,6 @@
 import { sql } from "@/lib/db";
 import { addRootAffiliate } from "./actions";
+import { AffiliatesTable, RsvpsTable } from "./DataTable";
 
 export const dynamic = "force-dynamic";
 
@@ -81,61 +82,9 @@ export default async function AdminPage({
         </form>
       </section>
 
-      <section style={{ marginBottom: 40 }}>
-        <h2>Affiliates ({affiliateRows.length})</h2>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-          <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #ddd" }}>
-              <th style={{ padding: 8 }}>Slug</th>
-              <th style={{ padding: 8 }}>Name</th>
-              <th style={{ padding: 8 }}>Email</th>
-              <th style={{ padding: 8 }}>RSVPs</th>
-              <th style={{ padding: 8 }}>Referred by</th>
-              <th style={{ padding: 8 }}>Joined</th>
-            </tr>
-          </thead>
-          <tbody>
-            {affiliateRows.map((a: any) => (
-              <tr key={a.slug} style={{ borderBottom: "1px solid #eee" }}>
-                <td style={{ padding: 8 }}>{a.slug}</td>
-                <td style={{ padding: 8 }}>{a.display_name}</td>
-                <td style={{ padding: 8 }}>{a.email}</td>
-                <td style={{ padding: 8 }}>{a.rsvp_count}</td>
-                <td style={{ padding: 8 }}>{a.referred_by_slug || "—"}</td>
-                <td style={{ padding: 8 }}>{new Date(a.created_at).toLocaleDateString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <AffiliatesTable rows={affiliateRows as any} />
 
-      <section>
-        <h2>Recent RSVPs ({rsvpRows.length})</h2>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-          <thead>
-            <tr style={{ textAlign: "left", borderBottom: "2px solid #ddd" }}>
-              <th style={{ padding: 8 }}>Name</th>
-              <th style={{ padding: 8 }}>Email</th>
-              <th style={{ padding: 8 }}>Phone</th>
-              <th style={{ padding: 8 }}>Affiliate</th>
-              <th style={{ padding: 8 }}>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rsvpRows.map((r: any, i: number) => (
-              <tr key={i} style={{ borderBottom: "1px solid #eee" }}>
-                <td style={{ padding: 8 }}>
-                  {r.first_name} {r.last_name}
-                </td>
-                <td style={{ padding: 8 }}>{r.email}</td>
-                <td style={{ padding: 8 }}>{r.phone || "—"}</td>
-                <td style={{ padding: 8 }}>{r.affiliate_slug}</td>
-                <td style={{ padding: 8 }}>{new Date(r.created_at).toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <RsvpsTable rows={rsvpRows as any} />
     </main>
   );
 }
