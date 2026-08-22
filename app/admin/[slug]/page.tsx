@@ -279,7 +279,7 @@ export default async function AffiliateDetailPage({
         }
         tbody td { padding: 10px 12px; border-bottom: 1px solid var(--line); }
         tbody tr:last-child td { border-bottom: none; }
-        tbody tr:hover { background: rgba(111,9,137,0.04); }
+        tbody tr:hover { background: rgba(178,65,248,0.04); }
         .rowLink { color: var(--amber); font-weight: 600; text-decoration: none; }
         .rowLink:hover { text-decoration: underline; }
       `}</style>

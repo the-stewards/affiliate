@@ -233,7 +233,7 @@ function RsvpForm({
         .headcountRow { text-align: center; margin: 0 0 18px; }
         .headcountPill {
           display: inline-flex; align-items: center; gap: 9px;
-          background: rgba(111,9,137,0.08); border: 1.5px solid rgba(111,9,137,0.3);
+          background: rgba(178,65,248,0.08); border: 1.5px solid rgba(178,65,248,0.3);
           border-radius: 999px; padding: 9px 16px 9px 14px;
         }
         .pulse {
@@ -368,7 +368,7 @@ function GamesDetail({
         .momentumRow { margin: 0 0 20px; }
         .momentumPill {
           display: inline-flex; align-items: center; gap: 9px;
-          background: rgba(111,9,137,0.08); border: 1.5px solid rgba(111,9,137,0.3);
+          background: rgba(178,65,248,0.08); border: 1.5px solid rgba(178,65,248,0.3);
           border-radius: 999px; padding: 9px 16px 9px 14px;
         }
         .momentumPill .pulse {
@@ -399,7 +399,7 @@ function GamesDetail({
         .prizeDetail { font-size: 14px; line-height: 1.4; color: var(--ink); }
         .prize-gold { background: rgba(255,69,0,0.06); border-color: rgba(255,69,0,0.35); }
         .prize-gold .prizeRank { color: var(--rebel-red); }
-        .prize-silver { background: rgba(111,9,137,0.05); border-color: rgba(111,9,137,0.28); }
+        .prize-silver { background: rgba(178,65,248,0.05); border-color: rgba(178,65,248,0.28); }
         .prize-silver .prizeRank { color: var(--amber); }
         .prize-bronze { background: rgba(0,0,0,0.02); }
         .prize-bronze .prizeRank { color: var(--slate); }

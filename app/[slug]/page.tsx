@@ -41,7 +41,7 @@ export default async function AffiliatePage({ params }: { params: { slug: string
           align-items: center;
           padding: 48px 20px 80px;
           background:
-            radial-gradient(circle at 15% 10%, rgba(111,9,137,0.10), transparent 45%),
+            radial-gradient(circle at 15% 10%, rgba(178,65,248,0.10), transparent 45%),
             var(--ivory);
         }
         .badge {
@@ -62,8 +62,8 @@ export default async function AffiliatePage({ params }: { params: { slug: string
           inset: 0;
           background: repeating-linear-gradient(
             135deg,
-            rgba(111,9,137,0.06) 0px,
-            rgba(111,9,137,0.06) 2px,
+            rgba(178,65,248,0.06) 0px,
+            rgba(178,65,248,0.06) 2px,
             transparent 2px,
             transparent 14px
           );
