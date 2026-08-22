@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { sql } from "@/lib/db";
 import { RESERVED_SLUGS, isValidSlugFormat } from "@/lib/slug";
 import { isValidEmail } from "@/lib/validate";
@@ -43,6 +44,7 @@ export async function addRootAffiliate(formData: FormData) {
     redirect("/admin?error=" + encodeURIComponent("Something went wrong. Try again."));
   }
 
+  revalidatePath("/admin");
   redirect("/admin?success=" + encodeURIComponent(`Added ${name} (/${slug}).`));
 }
 
@@ -54,6 +56,8 @@ export async function setLeaderboardVisibility(formData: FormData) {
     update affiliates set hidden_from_leaderboard = ${hidden} where lower(slug) = ${slug}
   `;
 
+  revalidatePath("/admin");
+  revalidatePath(`/admin/${slug}`);
   redirect(`/admin/${slug}?success=` + encodeURIComponent(hidden ? "Hidden from the leaderboard." : "Now visible on the leaderboard."));
 }
 
@@ -82,5 +86,6 @@ export async function deleteAffiliate(formData: FormData) {
 
   await sql`delete from affiliates where id = ${row.id}`;
 
+  revalidatePath("/admin");
   redirect("/admin?success=" + encodeURIComponent(`Deleted /${slug}.`));
 }
