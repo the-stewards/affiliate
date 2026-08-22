@@ -5,6 +5,10 @@ import { AutoRefresh } from "./AutoRefresh";
 
 export const dynamic = "force-dynamic";
 
+// Room capacity for the admin countdown. Bump this if the venue/goal
+// changes — it's a marketing number, not infra config.
+const RSVP_GOAL = 2500;
+
 export default async function AdminPage({
   searchParams,
 }: {
@@ -58,6 +62,10 @@ export default async function AdminPage({
         <div className="stat stat-accent">
           <span className="statLabel">Last hour</span>
           <span className="statNum">{stats.rsvp_last_hour}</span>
+        </div>
+        <div className="stat stat-accent">
+          <span className="statLabel">Spots left of {RSVP_GOAL.toLocaleString()}</span>
+          <span className="statNum">{Math.max(0, RSVP_GOAL - stats.rsvp_count).toLocaleString()}</span>
         </div>
       </div>
 
