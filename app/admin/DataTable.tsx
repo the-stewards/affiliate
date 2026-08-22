@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
 
 type Column<T> = {
@@ -50,70 +51,122 @@ function Table<T extends { _key: string }>({
   }
 
   return (
-    <section style={{ marginBottom: 40 }}>
-      <div
-        style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}
-        onClick={() => setOpen((o) => !o)}
-      >
-        <span style={{ fontSize: 13, color: "#666", width: 14 }}>{open ? "▾" : "▸"}</span>
-        <h2 style={{ margin: 0 }}>
-          {title} ({rows.length})
+    <section className="adminSection">
+      <div className="sectionHead" onClick={() => setOpen((o) => !o)}>
+        <span className="chevron">{open ? "▾" : "▸"}</span>
+        <h2>
+          {title} <span className="count">({rows.length})</span>
         </h2>
       </div>
 
       {open && (
-        <div style={{ marginTop: 12 }}>
+        <div className="sectionBody">
           <input
             type="text"
             placeholder={`Search ${title.toLowerCase()}…`}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            style={{
-              marginBottom: 12,
-              padding: "7px 10px",
-              width: "100%",
-              maxWidth: 320,
-              fontSize: 14,
-              border: "1px solid #ccc",
-              borderRadius: 6,
-            }}
+            className="search"
           />
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-            <thead>
-              <tr style={{ textAlign: "left", borderBottom: "2px solid #ddd" }}>
-                {columns.map((col) => (
-                  <th
-                    key={col.key}
-                    onClick={() => handleSort(col.key)}
-                    style={{ padding: 8, cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }}
-                  >
-                    {col.label}
-                    {sortKey === col.key ? (sortDir === "asc" ? " ▲" : " ▼") : ""}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((row) => (
-                <tr key={row._key} style={{ borderBottom: "1px solid #eee" }}>
+          <div className="tableScroll">
+            <table>
+              <thead>
+                <tr>
                   {columns.map((col) => (
-                    <td key={col.key} style={{ padding: 8 }}>
-                      {col.render ? col.render(row) : col.value(row)}
-                    </td>
+                    <th key={col.key} onClick={() => handleSort(col.key)}>
+                      {col.label}
+                      {sortKey === col.key ? (
+                        <span className="sortArrow">{sortDir === "asc" ? " ▲" : " ▼"}</span>
+                      ) : null}
+                    </th>
                   ))}
                 </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={columns.length} style={{ padding: 14, color: "#999", textAlign: "center" }}>
-                    No matches.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((row) => (
+                  <tr key={row._key}>
+                    {columns.map((col) => (
+                      <td key={col.key}>{col.render ? col.render(row) : col.value(row)}</td>
+                    ))}
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={columns.length} className="empty">
+                      No matches.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
+
+      <style>{`
+        .adminSection {
+          margin-bottom: 32px;
+          background: #fff;
+          border: 1px solid var(--line);
+          border-radius: 14px;
+          overflow: hidden;
+        }
+        .sectionHead {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 16px 20px;
+          cursor: pointer;
+          user-select: none;
+        }
+        .sectionHead h2 {
+          margin: 0;
+          font-family: var(--font-display);
+          font-weight: 400;
+          font-size: 20px;
+          text-transform: uppercase;
+          letter-spacing: 0.01em;
+        }
+        .chevron { font-size: 13px; color: var(--slate); width: 12px; }
+        .count { font-family: var(--font-mono); color: var(--slate); font-size: 14px; text-transform: none; letter-spacing: 0; }
+        .sectionBody { padding: 0 20px 20px; }
+        .search {
+          font-family: var(--font-mono);
+          font-size: 13px;
+          padding: 9px 12px;
+          width: 100%;
+          max-width: 320px;
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          margin-bottom: 14px;
+          background: var(--ivory);
+        }
+        .search:focus { outline: 2px solid var(--amber); outline-offset: 1px; }
+        .tableScroll { max-height: 480px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        thead th {
+          position: sticky;
+          top: 0;
+          background: var(--ink);
+          color: var(--ivory);
+          font-family: var(--font-mono);
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          text-align: left;
+          padding: 10px 12px;
+          cursor: pointer;
+          user-select: none;
+          white-space: nowrap;
+        }
+        .sortArrow { color: var(--rebel-red); }
+        tbody td { padding: 10px 12px; border-bottom: 1px solid var(--line); }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: rgba(111,9,137,0.04); }
+        .empty { text-align: center; color: var(--slate); padding: 20px !important; }
+        .rowLink { color: var(--amber); font-weight: 600; text-decoration: none; }
+        .rowLink:hover { text-decoration: underline; }
+      `}</style>
     </section>
   );
 }
@@ -130,7 +183,16 @@ export type AffiliateRow = {
 export function AffiliatesTable({ rows }: { rows: AffiliateRow[] }) {
   const data = rows.map((r) => ({ ...r, _key: r.slug }));
   const columns: Column<(typeof data)[number]>[] = [
-    { key: "slug", label: "Slug", value: (r) => r.slug },
+    {
+      key: "slug",
+      label: "Slug",
+      value: (r) => r.slug,
+      render: (r) => (
+        <Link href={`/admin/${r.slug}`} className="rowLink">
+          {r.slug}
+        </Link>
+      ),
+    },
     { key: "display_name", label: "Name", value: (r) => r.display_name },
     { key: "email", label: "Email", value: (r) => r.email },
     { key: "rsvp_count", label: "RSVPs", value: (r) => r.rsvp_count },
@@ -154,13 +216,23 @@ export type RsvpRow = {
   created_at: string;
 };
 
-export function RsvpsTable({ rows }: { rows: RsvpRow[] }) {
+export function RsvpsTable({
+  rows,
+  title = "Recent RSVPs",
+  showAffiliateColumn = true,
+}: {
+  rows: RsvpRow[];
+  title?: string;
+  showAffiliateColumn?: boolean;
+}) {
   const data = rows.map((r, i) => ({ ...r, _key: String(i) }));
   const columns: Column<(typeof data)[number]>[] = [
     { key: "name", label: "Name", value: (r) => `${r.first_name} ${r.last_name}` },
     { key: "email", label: "Email", value: (r) => r.email },
     { key: "phone", label: "Phone", value: (r) => r.phone || "—" },
-    { key: "affiliate_slug", label: "Affiliate", value: (r) => r.affiliate_slug },
+    ...(showAffiliateColumn
+      ? [{ key: "affiliate_slug", label: "Affiliate", value: (r: (typeof data)[number]) => r.affiliate_slug }]
+      : []),
     {
       key: "created_at",
       label: "Date",
@@ -168,5 +240,5 @@ export function RsvpsTable({ rows }: { rows: RsvpRow[] }) {
       render: (r) => new Date(r.created_at).toLocaleString(),
     },
   ];
-  return <Table title="Recent RSVPs" rows={data} columns={columns} defaultSortKey="created_at" />;
+  return <Table title={title} rows={data} columns={columns} defaultSortKey="created_at" />;
 }
