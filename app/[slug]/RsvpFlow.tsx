@@ -627,19 +627,46 @@ function SignupSuccess({ newSlug }: { newSlug: string | null }) {
   );
 }
 
+// Falls back to the older execCommand approach when the async Clipboard API
+// throws - which it reliably does inside an iframe without clipboard-write
+// permission (e.g. the Squarespace embed widget), on insecure/older
+// browsers, or in some in-app webviews. Without this, the button silently
+// did nothing in exactly those cases.
+function copyToClipboard(text: string): boolean {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch {
+    ok = false;
+  }
+  document.body.removeChild(textarea);
+  return ok;
+}
+
 function CopyLinkButton({ link }: { link: string }) {
-  const [copied, setCopied] = useState(false);
+  const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   async function handleCopy() {
+    const fullUrl = `https://${link}`;
+    let ok = false;
     try {
-      await navigator.clipboard.writeText(`https://${link}`);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(fullUrl);
+      ok = true;
     } catch {
-      // Clipboard API can fail (permissions, insecure context) — the link
-      // text above is already visible and selectable as a fallback.
+      ok = copyToClipboard(fullUrl);
     }
+    setStatus(ok ? "copied" : "failed");
+    setTimeout(() => setStatus("idle"), 2500);
   }
+
+  const label = status === "copied" ? "Copied ✓" : status === "failed" ? "Couldn't copy — select above" : "Copy link";
 
   return (
     <button
@@ -653,13 +680,13 @@ function CopyLinkButton({ link }: { link: string }) {
         padding: "9px 18px",
         borderRadius: 8,
         border: "1.5px solid var(--line)",
-        background: copied ? "var(--success)" : "transparent",
-        color: copied ? "#fff" : "var(--ink)",
-        borderColor: copied ? "var(--success)" : "var(--line)",
+        background: status === "copied" ? "var(--success)" : status === "failed" ? "var(--rebel-red)" : "transparent",
+        color: status === "idle" ? "var(--ink)" : "#fff",
+        borderColor: status === "copied" ? "var(--success)" : status === "failed" ? "var(--rebel-red)" : "var(--line)",
         transition: "all 0.15s ease",
       }}
     >
-      {copied ? "Copied ✓" : "Copy link"}
+      {label}
     </button>
   );
 }
