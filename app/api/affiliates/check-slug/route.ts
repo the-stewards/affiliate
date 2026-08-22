@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   // Generous limit — legit typing can fire this many times in one signup
   // (debounced per keystroke), but this still stops scripted enumeration.
-  if (isRateLimited(`check-slug:${ip}`, 30, 5 * 60 * 1000)) {
+  if (await isRateLimited(`check-slug:${ip}`, 30, 5 * 60 * 1000)) {
     return NextResponse.json({ available: false, reason: "rate_limited" }, { status: 429 });
   }
 

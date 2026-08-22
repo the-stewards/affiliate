@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
 
   // Generous enough that a group RSVPing from the same venue/office wifi
   // (shared IP) won't trip it, while still stopping a scripted flood.
-  if (isRateLimited(`rsvp:${ip}`, 20, 60 * 60 * 1000)) {
+  if (await isRateLimited(`rsvp:${ip}`, 20, 60 * 60 * 1000)) {
     return NextResponse.json(
       { error: "Too many submissions from this connection. Try again later." },
       { status: 429 }

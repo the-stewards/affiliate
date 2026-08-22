@@ -4,7 +4,7 @@ import { isRateLimited } from "@/lib/rateLimit";
 // Gates /admin behind HTTP Basic Auth. Simple on purpose - this is a
 // one-or-two-person internal tool, not a multi-user system, so a shared
 // username/password is enough without building out real auth.
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const user = process.env.ADMIN_USER;
   const pass = process.env.ADMIN_PASSWORD;
 
@@ -21,7 +21,7 @@ export function middleware(req: NextRequest) {
   // resending valid cached credentials on every request) never gets
   // throttled - only actual password guessing does.
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (isRateLimited(`admin-auth:${ip}`, 10, 15 * 60 * 1000)) {
+  if (await isRateLimited(`admin-auth:${ip}`, 10, 15 * 60 * 1000)) {
     return new NextResponse("Too many failed attempts. Try again later.", { status: 429 });
   }
 

@@ -69,3 +69,14 @@ create table if not exists health_state (
   check (id = 1)
 );
 insert into health_state (id, is_down) values (1, false) on conflict (id) do nothing;
+
+-- Shared rate-limit counters, keyed by e.g. "rsvp:1.2.3.4". Backed by
+-- Postgres instead of in-memory so the limit actually holds across
+-- Netlify's multiple concurrent function instances - an in-memory Map
+-- resets per-instance and per cold start, so a request spread across
+-- instances could otherwise blow past the intended cap unnoticed.
+create table if not exists rate_limits (
+  key           text primary key,
+  count         int not null default 1,
+  window_start  timestamptz not null default now()
+);
