@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { queueNotification } from "@/lib/zapier";
 import { isRateLimited } from "@/lib/rateLimit";
+import { isValidEmail } from "@/lib/validate";
 import { RESERVED_SLUGS, baseSlugFromName, isValidSlugFormat } from "@/lib/slug";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +31,10 @@ export async function POST(req: NextRequest) {
 
   if (!name?.trim() || !email?.trim()) {
     return NextResponse.json({ error: "Name and email are required." }, { status: 400 });
+  }
+
+  if (!isValidEmail(email.trim())) {
+    return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
   }
 
   const emailNormalized = email.trim().toLowerCase();

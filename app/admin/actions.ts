@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
 import { RESERVED_SLUGS, isValidSlugFormat } from "@/lib/slug";
+import { isValidEmail } from "@/lib/validate";
 
 export async function addRootAffiliate(formData: FormData) {
   const name = String(formData.get("name") || "").trim();
@@ -12,6 +13,9 @@ export async function addRootAffiliate(formData: FormData) {
 
   if (!name || !email || !slug) {
     redirect("/admin?error=" + encodeURIComponent("Name, email, and slug are required."));
+  }
+  if (!isValidEmail(email)) {
+    redirect("/admin?error=" + encodeURIComponent("Please enter a valid email address."));
   }
   if (!isValidSlugFormat(slug)) {
     redirect(

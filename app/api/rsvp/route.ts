@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
 import { queueNotification } from "@/lib/zapier";
 import { isRateLimited } from "@/lib/rateLimit";
+import { isValidEmail } from "@/lib/validate";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +44,10 @@ export async function POST(req: NextRequest) {
       { error: "First name, last name, email, and affiliate are required." },
       { status: 400 }
     );
+  }
+
+  if (!isValidEmail(email.trim())) {
+    return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
   }
 
   const emailNormalized = email.trim().toLowerCase();
