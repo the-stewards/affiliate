@@ -78,20 +78,20 @@ To keep affiliate links on your own domain instead of the raw `.netlify.app` one
 1. **Add a subdomain.** In Squarespace DNS settings (or wherever therebelevent.com's
    DNS is managed), add a CNAME record:
    ```
-   go.therebelevent.com  →  [your-site].netlify.app
+   join.therebelevent.com  →  [your-site].netlify.app
    ```
-   In Netlify, also add `go.therebelevent.com` as a custom domain on the site
+   In Netlify, also add `join.therebelevent.com` as a custom domain on the site
    (Site settings → Domain management) so SSL provisions correctly.
 
 2. **Map affiliate links to it.** In Squarespace: Settings → Advanced (or
    Developer Tools on older sites) → URL Mappings, add:
    ```
-   /[slug] -> https://go.therebelevent.com/[slug] 302
-   /leaderboard -> https://go.therebelevent.com/leaderboard 302
+   /[slug] -> https://join.therebelevent.com/[slug] 302
+   /leaderboard -> https://join.therebelevent.com/leaderboard 302
    ```
    This forwards `therebelevent.com/ember` to the live app while keeping the
    share-friendly domain you've already told people to use. Note: visitors'
-   address bar will show `go.therebelevent.com` after the redirect, not the
+   address bar will show `join.therebelevent.com` after the redirect, not the
    bare `therebelevent.com` — that's a hard limit of how Squarespace redirects
    work, not something the app can change.
 
