@@ -9,7 +9,6 @@ async function getAffiliate(slug: string) {
   if (RESERVED_SLUGS.has(slug.toLowerCase())) return null;
   const rows = await sql`
     select a.id, a.slug, a.display_name,
-      (select count(*)::int from rsvps r where r.affiliate_id = a.id) as rsvp_count,
       (select count(*)::int from rsvps) as total_rsvp_count
     from affiliates a
     where lower(a.slug) = ${slug.toLowerCase()}
@@ -26,10 +25,6 @@ export default async function AffiliatePage({ params }: { params: { slug: string
       <div className="badge">
         <span className="eyebrow">You're invited by</span>
         <h1 className="name">{affiliate.display_name}</h1>
-        <div className="score">
-          <span className="scoreLabel">RSVPs brought in</span>
-          <span className="scoreNum">{affiliate.rsvp_count}</span>
-        </div>
       </div>
 
       <RsvpFlow
@@ -86,30 +81,8 @@ export default async function AffiliatePage({ params }: { params: { slug: string
           font-weight: 400;
           font-size: clamp(34px, 8vw, 52px);
           letter-spacing: 0.01em;
-          margin: 6px 0 20px;
+          margin: 6px 0 0;
           text-transform: uppercase;
-        }
-        .score {
-          display: inline-flex;
-          align-items: baseline;
-          gap: 12px;
-          background: var(--ink-soft);
-          border-radius: 12px;
-          padding: 12px 22px;
-        }
-        .scoreLabel {
-          font-family: var(--font-mono);
-          font-size: 12px;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: rgba(255,255,255,0.6);
-        }
-        .scoreNum {
-          font-family: var(--font-mono);
-          font-weight: 700;
-          font-size: 32px;
-          color: var(--amber);
-          font-variant-numeric: tabular-nums;
         }
       `}</style>
     </main>

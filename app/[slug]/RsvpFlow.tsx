@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 
-type Step = "rsvp" | "offer" | "signup" | "signup-success";
+type Step = "rsvp" | "offer" | "games-detail" | "signup" | "signup-success";
 
 // Plain fetch has no timeout — on flaky wifi a request can hang indefinitely,
 // leaving the user stuck on "Saving..." with no way to recover short of a
@@ -55,7 +55,16 @@ export default function RsvpFlow({
           onDone={() => setStep("offer")}
         />
       )}
-      {step === "offer" && <Offer onYes={() => setStep("signup")} onNo={() => setStep("signup-success")} />}
+      {step === "offer" && (
+        <Offer onYes={() => setStep("games-detail")} onNo={() => setStep("signup-success")} />
+      )}
+      {step === "games-detail" && (
+        <GamesDetail
+          totalRsvpCount={totalRsvpCount}
+          onYes={() => setStep("signup")}
+          onNo={() => setStep("signup-success")}
+        />
+      )}
       {step === "signup" && (
         <SignupForm
           referredBySlug={affiliateSlug}
@@ -268,29 +277,136 @@ function Offer({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
       <p className="check">✓ Spot saved for the Rebel 2027 Launch Call</p>
       <h2 className="title">Don't just attend — compete</h2>
       <p className="sub">
-        Join the Rebel Ambassador Games, grab your link, and see how many you can bring.
+        Invite others to the Launch Call and you could win real prizes — a free VIP ticket, the trophy,
+        even stage time.
       </p>
-      <div className="row">
-        <button className="cta" onClick={onYes}>
-          Join the Games
-        </button>
-        <button className="secondary" onClick={onNo}>
-          No thanks
-        </button>
-      </div>
+      <button className="cta" onClick={onYes}>
+        See the prizes
+      </button>
+      <button className="skip" onClick={onNo}>
+        No thanks
+      </button>
       <style>{`
         .check { font-family: var(--font-mono); color: var(--success); font-weight: 700; margin: 0 0 4px; }
         .title { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; margin: 0 0 6px; }
         .sub { color: var(--slate); margin: 0 0 20px; font-size: 15px; line-height: 1.5; }
-        .row { display: flex; gap: 10px; flex-wrap: wrap; }
         .cta {
-          flex: 1; min-width: 160px; background: var(--rebel-red); color: #fff; border: none;
+          display: block; width: 100%; background: var(--rebel-red); color: #fff; border: none;
           border-radius: 10px; padding: 14px; font-weight: 700; font-size: 16px;
         }
-        .secondary {
-          flex: 1; min-width: 120px; background: transparent; color: var(--ink);
-          border: 1.5px solid var(--line); border-radius: 10px; padding: 14px; font-weight: 600; font-size: 15px;
+        .skip {
+          display: block; width: 100%; background: none; border: none; color: var(--slate);
+          font-size: 13px; font-weight: 600; padding: 12px 0 0; cursor: pointer; text-align: center;
         }
+        .skip:hover { color: var(--ink); text-decoration: underline; }
+      `}</style>
+    </div>
+  );
+}
+
+function GamesDetail({
+  totalRsvpCount,
+  onYes,
+  onNo,
+}: {
+  totalRsvpCount?: number;
+  onYes: () => void;
+  onNo: () => void;
+}) {
+  return (
+    <div>
+      <span className="eyebrow">Rebel Ambassador Games</span>
+      <h2 className="title">Bring your people. Win the games.</h2>
+      <p className="sub">
+        Every person you invite to the Rebel 2027 Launch Call counts toward your score. You're helping
+        them land a seat in the room — and the more you bring, the better your shot at the podium.
+      </p>
+
+      {typeof totalRsvpCount === "number" && totalRsvpCount > 0 && (
+        <div className="momentumRow">
+          <div className="momentumPill">
+            <span className="pulse" />
+            <span className="momentumNum">{totalRsvpCount.toLocaleString()}</span>
+            <span className="momentumLabel">RSVPs brought in so far — you could be next</span>
+          </div>
+        </div>
+      )}
+
+      <div className="prizes">
+        <div className="prize prize-gold">
+          <span className="prizeRank">1st</span>
+          <span className="prizeDetail">Free VIP ticket + the Rebel Trophy + stage time at the event</span>
+        </div>
+        <div className="prize prize-silver">
+          <span className="prizeRank">2nd–3rd</span>
+          <span className="prizeDetail">Free VIP ticket + stage time at the event</span>
+        </div>
+        <div className="prize prize-bronze">
+          <span className="prizeRank">4th–10th</span>
+          <span className="prizeDetail">Free General Admission ticket</span>
+        </div>
+      </div>
+
+      <button className="cta" onClick={onYes}>
+        Get my link
+      </button>
+      <button className="skip" onClick={onNo}>
+        Maybe later
+      </button>
+      <style>{`
+        .eyebrow {
+          display: block; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase;
+          letter-spacing: 0.08em; color: var(--amber); margin-bottom: 6px;
+        }
+        .title { font-family: var(--font-display); font-size: 26px; text-transform: uppercase; margin: 0 0 10px; }
+        .sub { color: var(--slate); margin: 0 0 16px; font-size: 15px; line-height: 1.5; }
+        .momentumRow { margin: 0 0 20px; }
+        .momentumPill {
+          display: inline-flex; align-items: center; gap: 9px;
+          background: rgba(111,9,137,0.08); border: 1.5px solid rgba(111,9,137,0.3);
+          border-radius: 999px; padding: 9px 16px 9px 14px;
+        }
+        .momentumPill .pulse {
+          width: 8px; height: 8px; border-radius: 50%; background: var(--rebel-red);
+          flex-shrink: 0; animation: momentumPulse 1.6s ease-in-out infinite;
+        }
+        @keyframes momentumPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.35; transform: scale(0.8); }
+        }
+        .momentumNum {
+          font-family: var(--font-mono); font-weight: 700; font-size: 19px; color: var(--amber);
+          font-variant-numeric: tabular-nums;
+        }
+        .momentumLabel {
+          font-family: var(--font-mono); font-size: 12px; color: var(--ink);
+          text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;
+        }
+        .prizes { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+        .prize {
+          display: flex; align-items: baseline; gap: 12px; padding: 12px 14px;
+          border-radius: 10px; border: 1.5px solid var(--line);
+        }
+        .prizeRank {
+          font-family: var(--font-mono); font-weight: 700; font-size: 13px; text-transform: uppercase;
+          letter-spacing: 0.03em; white-space: nowrap; flex-shrink: 0; width: 62px;
+        }
+        .prizeDetail { font-size: 14px; line-height: 1.4; color: var(--ink); }
+        .prize-gold { background: rgba(255,69,0,0.06); border-color: rgba(255,69,0,0.35); }
+        .prize-gold .prizeRank { color: var(--rebel-red); }
+        .prize-silver { background: rgba(111,9,137,0.05); border-color: rgba(111,9,137,0.28); }
+        .prize-silver .prizeRank { color: var(--amber); }
+        .prize-bronze { background: rgba(0,0,0,0.02); }
+        .prize-bronze .prizeRank { color: var(--slate); }
+        .cta {
+          display: block; width: 100%; background: var(--rebel-red); color: #fff; border: none;
+          border-radius: 10px; padding: 14px; font-weight: 700; font-size: 16px;
+        }
+        .skip {
+          display: block; width: 100%; background: none; border: none; color: var(--slate);
+          font-size: 13px; font-weight: 600; padding: 12px 0 0; cursor: pointer; text-align: center;
+        }
+        .skip:hover { color: var(--ink); text-decoration: underline; }
       `}</style>
     </div>
   );
