@@ -4,6 +4,10 @@ import { useState, useRef, useEffect } from "react";
 
 type Step = "rsvp" | "offer" | "signup" | "signup-success";
 
+// Room capacity for the countdown pill on the RSVP form. Bump this if the
+// venue/goal changes — it's a marketing number, not infra config.
+const RSVP_GOAL = 2500;
+
 // Plain fetch has no timeout — on flaky wifi a request can hang indefinitely,
 // leaving the user stuck on "Saving..." with no way to recover short of a
 // refresh. This caps how long we wait and surfaces a clear, actionable error
@@ -145,12 +149,12 @@ function RsvpForm({
   return (
     <form onSubmit={handleSubmit}>
       <h2 className="title">Save your seat</h2>
-      {typeof totalRsvpCount === "number" && totalRsvpCount > 0 && (
+      {typeof totalRsvpCount === "number" && (
         <div className="headcountRow">
           <div className="headcountPill">
             <span className="pulse" />
-            <span className="headcountNum">{totalRsvpCount.toLocaleString()}</span>
-            <span className="headcountLabel">are coming to the Rebel Event Launch</span>
+            <span className="headcountNum">{Math.max(0, RSVP_GOAL - totalRsvpCount).toLocaleString()}</span>
+            <span className="headcountLabel">spots left of {RSVP_GOAL.toLocaleString()}</span>
           </div>
         </div>
       )}

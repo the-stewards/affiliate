@@ -2,12 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { sql } from "@/lib/db";
 import { RsvpsTable } from "../DataTable";
+import { setLeaderboardVisibility, deleteAffiliate } from "../actions";
+import { ConfirmButton } from "../ConfirmButton";
 
 export const dynamic = "force-dynamic";
 
 async function getAffiliate(slug: string) {
   const rows = await sql`
-    select a.id, a.slug, a.display_name, a.email, a.phone, a.created_at,
+    select a.id, a.slug, a.display_name, a.email, a.phone, a.created_at, a.hidden_from_leaderboard,
       ref.slug as referred_by_slug,
       (select count(*)::int from rsvps r where r.affiliate_id = a.id) as rsvp_count
     from affiliates a
@@ -17,7 +19,13 @@ async function getAffiliate(slug: string) {
   return rows[0] || null;
 }
 
-export default async function AffiliateDetailPage({ params }: { params: { slug: string } }) {
+export default async function AffiliateDetailPage({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams: { error?: string; success?: string };
+}) {
   const affiliate = await getAffiliate(params.slug);
   if (!affiliate) notFound();
 
@@ -60,7 +68,33 @@ export default async function AffiliateDetailPage({ params }: { params: { slug: 
         <div className="metaRow">
           <span>Referred by: {affiliate.referred_by_slug || "—"}</span>
           <span>Joined: {new Date(affiliate.created_at).toLocaleDateString()}</span>
+          <span>
+            Leaderboard: <strong>{affiliate.hidden_from_leaderboard ? "Hidden" : "Visible"}</strong>
+          </span>
         </div>
+      </div>
+
+      {searchParams.error && <p className="banner bannerError">{searchParams.error}</p>}
+      {searchParams.success && <p className="banner bannerSuccess">{searchParams.success}</p>}
+
+      <div className="actions">
+        <form action={setLeaderboardVisibility}>
+          <input type="hidden" name="slug" value={affiliate.slug} />
+          <input type="hidden" name="hidden" value={affiliate.hidden_from_leaderboard ? "false" : "true"} />
+          <button type="submit" className="secondaryBtn">
+            {affiliate.hidden_from_leaderboard ? "Show on leaderboard" : "Hide from leaderboard"}
+          </button>
+        </form>
+        <form action={deleteAffiliate}>
+          <input type="hidden" name="slug" value={affiliate.slug} />
+          <ConfirmButton
+            type="submit"
+            className="dangerBtn"
+            confirmText={`Delete /${affiliate.slug}? This only works if they have 0 RSVPs and referred no one.`}
+          >
+            Delete affiliate
+          </ConfirmButton>
+        </form>
       </div>
 
       <div className="stats">
@@ -151,6 +185,45 @@ export default async function AffiliateDetailPage({ params }: { params: { slug: 
           flex-wrap: wrap;
         }
         .metaRow { margin-top: 4px; gap: 20px; }
+        .metaRow strong { color: var(--ink); }
+        .banner {
+          font-family: var(--font-mono);
+          font-size: 13px;
+          padding: 10px 14px;
+          border-radius: 8px;
+          margin-bottom: 16px;
+        }
+        .bannerError { background: #fee; color: #900; }
+        .bannerSuccess { background: #efe; color: #060; }
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+        .secondaryBtn {
+          font-family: var(--font-mono);
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          background: transparent;
+          color: var(--ink);
+          border: 1.5px solid var(--line);
+          border-radius: 8px;
+          padding: 9px 16px;
+          cursor: pointer;
+        }
+        .secondaryBtn:hover { border-color: var(--amber); color: var(--amber); }
+        .dangerBtn {
+          font-family: var(--font-mono);
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          background: transparent;
+          color: var(--rebel-red);
+          border: 1.5px solid var(--rebel-red);
+          border-radius: 8px;
+          padding: 9px 16px;
+          cursor: pointer;
+        }
+        .dangerBtn:hover { background: var(--rebel-red); color: #fff; }
         .stats { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
         .stat {
           flex: 1;

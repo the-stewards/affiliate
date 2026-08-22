@@ -41,3 +41,42 @@ export async function addRootAffiliate(formData: FormData) {
 
   redirect("/admin?success=" + encodeURIComponent(`Added ${name} (/${slug}).`));
 }
+
+export async function setLeaderboardVisibility(formData: FormData) {
+  const slug = String(formData.get("slug") || "").trim().toLowerCase();
+  const hidden = formData.get("hidden") === "true";
+
+  await sql`
+    update affiliates set hidden_from_leaderboard = ${hidden} where lower(slug) = ${slug}
+  `;
+
+  redirect(`/admin/${slug}?success=` + encodeURIComponent(hidden ? "Hidden from the leaderboard." : "Now visible on the leaderboard."));
+}
+
+export async function deleteAffiliate(formData: FormData) {
+  const slug = String(formData.get("slug") || "").trim().toLowerCase();
+
+  const rows = await sql`
+    select a.id,
+      (select count(*)::int from rsvps r where r.affiliate_id = a.id) as rsvp_count,
+      (select count(*)::int from affiliates ref where ref.referred_by_id = a.id) as referred_count
+    from affiliates a
+    where lower(a.slug) = ${slug}
+  `;
+  const row = rows[0];
+  if (!row) {
+    redirect("/admin?error=" + encodeURIComponent("Affiliate not found."));
+  }
+  if (row.rsvp_count > 0 || row.referred_count > 0) {
+    redirect(
+      `/admin/${slug}?error=` +
+        encodeURIComponent(
+          `Can't delete — this affiliate has ${row.rsvp_count} RSVP(s) and referred ${row.referred_count} affiliate(s). Hide them from the leaderboard instead.`
+        )
+    );
+  }
+
+  await sql`delete from affiliates where id = ${row.id}`;
+
+  redirect("/admin?success=" + encodeURIComponent(`Deleted /${slug}.`));
+}

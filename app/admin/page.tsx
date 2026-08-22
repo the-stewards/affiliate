@@ -12,7 +12,7 @@ export default async function AdminPage({
 }) {
   const [affiliateRows, rsvpRows, counts] = await Promise.all([
     sql`
-      select a.slug, a.display_name, a.email, a.created_at,
+      select a.slug, a.display_name, a.email, a.created_at, a.hidden_from_leaderboard,
         ref.slug as referred_by_slug,
         (select count(*)::int from rsvps r where r.affiliate_id = a.id) as rsvp_count
       from affiliates a

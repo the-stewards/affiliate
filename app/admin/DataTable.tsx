@@ -166,6 +166,15 @@ function Table<T extends { _key: string }>({
         .empty { text-align: center; color: var(--slate); padding: 20px !important; }
         .rowLink { color: var(--amber); font-weight: 600; text-decoration: none; }
         .rowLink:hover { text-decoration: underline; }
+        .statusVisible, .statusHidden {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          font-weight: 700;
+        }
+        .statusVisible { color: var(--success); }
+        .statusHidden { color: var(--slate); }
       `}</style>
     </section>
   );
@@ -177,6 +186,7 @@ export type AffiliateRow = {
   email: string;
   rsvp_count: number;
   referred_by_slug: string | null;
+  hidden_from_leaderboard: boolean;
   created_at: string;
 };
 
@@ -197,6 +207,16 @@ export function AffiliatesTable({ rows }: { rows: AffiliateRow[] }) {
     { key: "email", label: "Email", value: (r) => r.email },
     { key: "rsvp_count", label: "RSVPs", value: (r) => r.rsvp_count },
     { key: "referred_by_slug", label: "Referred by", value: (r) => r.referred_by_slug || "—" },
+    {
+      key: "hidden_from_leaderboard",
+      label: "Leaderboard",
+      value: (r) => (r.hidden_from_leaderboard ? "Hidden" : "Visible"),
+      render: (r) => (
+        <span className={r.hidden_from_leaderboard ? "statusHidden" : "statusVisible"}>
+          {r.hidden_from_leaderboard ? "Hidden" : "Visible"}
+        </span>
+      ),
+    },
     {
       key: "created_at",
       label: "Joined",

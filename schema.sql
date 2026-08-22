@@ -2,15 +2,19 @@
 -- Run this once against your Neon database (see README for how).
 
 create table if not exists affiliates (
-  id              bigserial primary key,
-  slug            text not null,
-  display_name    text not null,
-  email           text not null,
-  phone           text,
-  photo_url       text,
-  referred_by_id  bigint references affiliates(id),
-  created_at      timestamptz not null default now()
+  id                     bigserial primary key,
+  slug                   text not null,
+  display_name           text not null,
+  email                  text not null,
+  phone                  text,
+  photo_url              text,
+  referred_by_id         bigint references affiliates(id),
+  hidden_from_leaderboard boolean not null default false,
+  created_at             timestamptz not null default now()
 );
+
+-- Backfill for tables created before this column existed.
+alter table affiliates add column if not exists hidden_from_leaderboard boolean not null default false;
 
 -- Case-insensitive uniqueness so "Ember" and "ember" can't collide. This is
 -- the ONLY uniqueness constraint on slug (deliberately not `unique` on the
