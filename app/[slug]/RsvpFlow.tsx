@@ -211,7 +211,12 @@ function RsvpForm({
 
       {phone && (
         <label className="checkboxField">
-          <input type="checkbox" checked={smsConsent} onChange={(e) => setSmsConsent(e.target.checked)} />
+          <input
+            type="checkbox"
+            required
+            checked={smsConsent}
+            onChange={(e) => setSmsConsent(e.target.checked)}
+          />
           <span>I agree to receive event updates by text at the number above.</span>
         </label>
       )}

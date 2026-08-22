@@ -50,6 +50,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
   }
 
+  // The checkbox is only required client-side by HTML form validation, which
+  // a direct API call can skip - this is the compliance backstop that
+  // actually matters, since providing a phone number without consent isn't
+  // something that should be storable at all.
+  if (phone?.trim() && !smsConsent) {
+    return NextResponse.json(
+      { error: "Please check the box to consent to texts, or leave the phone number blank." },
+      { status: 400 }
+    );
+  }
+
   const emailNormalized = email.trim().toLowerCase();
 
   const affiliateRows = await sql`
