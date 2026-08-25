@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/db";
-import { queueNotification } from "@/lib/zapier";
 import { isRateLimited } from "@/lib/rateLimit";
 import { isValidEmail } from "@/lib/validate";
 
@@ -8,15 +7,6 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-
-  // Generous enough that a group RSVPing from the same venue/office wifi
-  // (shared IP) won't trip it, while still stopping a scripted flood.
-  if (await isRateLimited(`rsvp:${ip}`, 20, 60 * 60 * 1000)) {
-    return NextResponse.json(
-      { error: "Too many submissions from this connection. Try again later." },
-      { status: 429 }
-    );
-  }
 
   const body = await req.json().catch(() => null);
   if (!body) {
@@ -63,9 +53,30 @@ export async function POST(req: NextRequest) {
 
   const emailNormalized = email.trim().toLowerCase();
 
-  const affiliateRows = await sql`
-    select id, slug, display_name, email from affiliates where lower(slug) = ${affiliateSlug.toLowerCase()}
-  `;
+  // Rate-limit check and affiliate lookup don't depend on each other, so run
+  // them concurrently instead of one after another - this and the combined
+  // insert below are what actually cut the perceived "did my phone freeze"
+  // lag on submit, since Neon's HTTP driver pays a real network round trip
+  // for every separate query.
+  const [limited, affiliateRows] = await Promise.all([
+    // Generous enough that a group RSVPing from the same venue/office wifi
+    // (shared IP) won't trip it, while still stopping a scripted flood.
+    isRateLimited(`rsvp:${ip}`, 20, 60 * 60 * 1000),
+    sql`
+      select id, slug, display_name, email,
+        (select count(*)::int from rsvps r where r.affiliate_id = a.id) as current_count
+      from affiliates a
+      where lower(a.slug) = ${affiliateSlug.toLowerCase()}
+    `,
+  ]);
+
+  if (limited) {
+    return NextResponse.json(
+      { error: "Too many submissions from this connection. Try again later." },
+      { status: 429 }
+    );
+  }
+
   const affiliate = affiliateRows[0];
   if (!affiliate) {
     return NextResponse.json({ error: "This affiliate link isn't valid." }, { status: 404 });
@@ -80,30 +91,32 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const inserted = await sql`
-      insert into rsvps (affiliate_id, first_name, last_name, email, phone, sms_consent)
-      values (${affiliate.id}, ${firstName.trim()}, ${lastName.trim()}, ${emailNormalized}, ${phone?.trim() || null}, ${!!smsConsent})
-      returning id, created_at
+    // Single round trip: insert the RSVP, then queue its Zapier notification
+    // in the same statement via a CTE. Field names in the payload match the
+    // Google Sheet columns this feeds into: First Name, Last Name, Email,
+    // Phone, RSVP date, Affiliate ref code.
+    const result = await sql`
+      with new_rsvp as (
+        insert into rsvps (affiliate_id, first_name, last_name, email, phone, sms_consent)
+        values (${affiliate.id}, ${firstName.trim()}, ${lastName.trim()}, ${emailNormalized}, ${phone?.trim() || null}, ${!!smsConsent})
+        returning id, created_at
+      )
+      insert into notifications (event, payload)
+      select 'new_rsvp', jsonb_build_object(
+        'affiliate_name', ${affiliate.display_name}::text,
+        'affiliate_slug', ${affiliate.slug}::text,
+        'rsvp_first_name', ${firstName.trim()}::text,
+        'rsvp_last_name', ${lastName.trim()}::text,
+        'rsvp_email', ${emailNormalized}::text,
+        'rsvp_phone', ${phone?.trim() || null}::text,
+        'rsvp_date', new_rsvp.created_at,
+        'affiliate_total_count', ${affiliate.current_count + 1}::int
+      )
+      from new_rsvp
+      returning (select id from new_rsvp) as rsvp_id
     `;
 
-    const countRows = await sql`
-      select count(*)::int as count from rsvps where affiliate_id = ${affiliate.id}
-    `;
-
-    // Field names match the Google Sheet columns this feeds into via
-    // Zapier: First Name, Last Name, Email, Phone, RSVP date, Affiliate ref code.
-    await queueNotification("new_rsvp", {
-      affiliate_name: affiliate.display_name,
-      affiliate_slug: affiliate.slug,
-      rsvp_first_name: firstName.trim(),
-      rsvp_last_name: lastName.trim(),
-      rsvp_email: emailNormalized,
-      rsvp_phone: phone?.trim() || null,
-      rsvp_date: inserted[0]?.created_at ?? new Date().toISOString(),
-      affiliate_total_count: countRows[0]?.count ?? null,
-    });
-
-    return NextResponse.json({ ok: true, rsvpId: inserted[0]?.id });
+    return NextResponse.json({ ok: true, rsvpId: result[0]?.rsvp_id });
   } catch (err: any) {
     // Unique constraint on lower(email) — this person already RSVP'd
     // (possibly under a different affiliate). First one in wins.
