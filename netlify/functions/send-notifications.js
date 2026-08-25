@@ -48,6 +48,11 @@ exports.handler = async () => {
       if (res.ok) {
         await sql`update notifications set sent_at = now() where id = ${row.id}`;
         sent++;
+      } else {
+        // A non-2xx response isn't a thrown error, so it needs its own log
+        // line - otherwise a failing send is invisible until it silently
+        // exhausts all 5 attempts with no trace of why.
+        console.error("Notification send rejected:", row.id, res.status, await res.text().catch(() => ""));
       }
     } catch (err) {
       console.error("Notification send failed:", row.id, err);
