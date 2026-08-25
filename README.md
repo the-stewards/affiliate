@@ -71,32 +71,33 @@ the only thing on the request path is a fast Neon insert. Notifications
 typically land within a minute; failed sends retry automatically (up to 5
 attempts) on the next run.
 
-## 4. Point therebelevent.com at it (Squarespace)
+## 4. Point join.therebelevent.com at it (Squarespace)
 
-To keep affiliate links on your own domain instead of the raw `.netlify.app` one:
-
-1. **Add a subdomain.** In Squarespace DNS settings (or wherever therebelevent.com's
-   DNS is managed), add a CNAME record:
+1. **Add a subdomain.** In Squarespace DNS settings, add a CNAME record:
    ```
    join.therebelevent.com  →  [your-site].netlify.app
    ```
    In Netlify, also add `join.therebelevent.com` as a custom domain on the site
    (Site settings → Domain management) so SSL provisions correctly.
 
-2. **Map affiliate links to it.** In Squarespace: Settings → Advanced (or
-   Developer Tools on older sites) → URL Mappings, add:
+2. **Affiliate links use `join.therebelevent.com/[slug]` directly** — this is
+   what's shown and copied everywhere in the app (the signup form's live
+   preview, the success screen). Don't try to route affiliate slugs through
+   the bare `therebelevent.com` domain via Squarespace's URL Mappings: it
+   only supports wildcard variables (`[name]`) when they follow a static
+   path prefix (e.g. `/blog/[name]`), not as the entire root path
+   (`/[slug]`). A bare root-level wildcard mapping silently fails — every
+   slug 404s instead of redirecting, which is exactly what happened when
+   this was tried. Squarespace's own docs never show a prefix-less example,
+   and testing confirmed it doesn't work.
+
+   A single **literal** mapping (no wildcard) still works fine if you want
+   the main domain to redirect a specific static path:
    ```
-   /[slug] -> https://join.therebelevent.com/[slug] 302
    /leaderboard -> https://join.therebelevent.com/leaderboard 302
    ```
-   This forwards `therebelevent.com/ember` to the live app while keeping the
-   share-friendly domain you've already told people to use. Note: visitors'
-   address bar will show `join.therebelevent.com` after the redirect, not the
-   bare `therebelevent.com` — that's a hard limit of how Squarespace redirects
-   work, not something the app can change.
 
-3. Test with a real affiliate slug before sending it out, and check that
-   `/leaderboard` also resolves correctly.
+3. Test with a real affiliate slug before sending it out.
 
 ## Guardrails already built in
 

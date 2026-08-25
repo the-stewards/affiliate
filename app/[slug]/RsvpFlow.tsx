@@ -528,7 +528,7 @@ function SignupForm({ referredBySlug, onDone }: { referredBySlug: string; onDone
       <label className="field">
         <span>Your link</span>
         <div className="slugRow">
-          <span className="slugPrefix">therebelevent.com/</span>
+          <span className="slugPrefix">join.therebelevent.com/</span>
           <input
             required
             value={slug}
@@ -599,7 +599,7 @@ function SignupSuccess({ newSlug }: { newSlug: string | null }) {
     );
   }
 
-  const link = `therebelevent.com/${newSlug}`;
+  const link = `join.therebelevent.com/${newSlug}`;
 
   return (
     <div style={{ textAlign: "center" }}>
