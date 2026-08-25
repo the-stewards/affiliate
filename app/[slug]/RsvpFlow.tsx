@@ -604,7 +604,7 @@ function SignupSuccess({ newSlug }: { newSlug: string | null }) {
   return (
     <div style={{ textAlign: "center" }}>
       <p style={{ fontFamily: "var(--font-mono)", color: "var(--success)", fontWeight: 700, marginBottom: 4 }}>
-        ✓ You're in the game
+        ✓ You're in the Rebel Ambassador Games
       </p>
       <h2 style={{ fontFamily: "var(--font-display)", fontSize: 26, textTransform: "uppercase", margin: "0 0 12px" }}>
         Your link is live
