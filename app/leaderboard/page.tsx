@@ -43,6 +43,7 @@ export default function LeaderboardPage() {
       ) : (
         <div className="lists">
           {/* #1 — full-width hero card */}
+          <div className="tierLabel tierLabel-red">VIP ticket + the Rebel Trophy + stage time</div>
           <div className="hero">
             <span className="heroRank">1</span>
             <span className="heroName">{rows[0].display_name}</span>
@@ -51,31 +52,37 @@ export default function LeaderboardPage() {
 
           {/* #2 and #3 — split 50/50 */}
           {rows.length > 1 && (
-            <div className="podiumRow">
-              {rows.slice(1, 3).map((row, i) => (
-                <div key={row.slug} className="podiumCard">
-                  <span className="podiumRank">{i + 2}</span>
-                  <span className="podiumName">{row.display_name}</span>
-                  <span className="podiumCount">{row.rsvp_count}</span>
-                </div>
-              ))}
-            </div>
+            <>
+              <div className="tierLabel tierLabel-red">VIP ticket + stage time</div>
+              <div className="podiumRow">
+                {rows.slice(1, 3).map((row, i) => (
+                  <div key={row.slug} className="podiumCard">
+                    <span className="podiumRank">{i + 2}</span>
+                    <span className="podiumName">{row.display_name}</span>
+                    <span className="podiumCount">{row.rsvp_count}</span>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
 
           {/* #4+ — standard rows, purple trim through #10, white trim after */}
           {rows.length > 3 && (
-            <ol className="board">
-              {rows.slice(3).map((row, i) => {
-                const rank = i + 4;
-                return (
-                  <li key={row.slug} className={`row ${rank <= 10 ? "tier-purple" : "tier-white"}`}>
-                    <span className="rank">{rank}</span>
-                    <span className="name">{row.display_name}</span>
-                    <span className="count">{row.rsvp_count}</span>
-                  </li>
-                );
-              })}
-            </ol>
+            <>
+              <div className="tierLabel tierLabel-purple">General admission ticket</div>
+              <ol className="board">
+                {rows.slice(3).map((row, i) => {
+                  const rank = i + 4;
+                  return (
+                    <li key={row.slug} className={`row ${rank <= 10 ? "tier-purple" : "tier-white"}`}>
+                      <span className="rank">{rank}</span>
+                      <span className="name">{row.display_name}</span>
+                      <span className="count">{row.rsvp_count}</span>
+                    </li>
+                  );
+                })}
+              </ol>
+            </>
           )}
         </div>
       )}
@@ -105,6 +112,13 @@ export default function LeaderboardPage() {
           width: 100%; max-width: 560px;
           display: flex; flex-direction: column; gap: 10px;
         }
+
+        .tierLabel {
+          font-family: var(--font-mono); font-size: 11px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 0.06em; margin: 4px 2px 2px;
+        }
+        .tierLabel-red { color: var(--rebel-red); }
+        .tierLabel-purple { color: var(--amber); }
 
         /* #1 — exaggerated, full-width */
         .hero {
