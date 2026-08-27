@@ -17,7 +17,11 @@ function getSql() {
   if (!connectionString) {
     throw new Error("DATABASE_URL is not set. See .env.example.");
   }
-  _sql = neon(connectionString);
+  // Neon's driver queries over HTTP under the hood, and Next.js patches the
+  // global fetch to add its own caching - which can intercept these calls
+  // even on routes marked force-dynamic. cache: "no-store" here stops that
+  // at the source instead of relying on route-level config to catch it.
+  _sql = neon(connectionString, { fetchOptions: { cache: "no-store" } });
   return _sql;
 }
 
