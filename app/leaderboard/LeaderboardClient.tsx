@@ -71,15 +71,24 @@ export default function LeaderboardClient() {
             <>
               <div className="tierLabel tierLabel-purple">General admission ticket</div>
               <ol className="board">
-                {rows.slice(3).map((row, i) => {
+                {rows.slice(3).flatMap((row, i) => {
                   const rank = i + 4;
-                  return (
+                  const items = [];
+                  if (rank === 11) {
+                    items.push(
+                      <li key="tier-divider" className="divider">
+                        Prizes start at #10 — need help getting there? Just ask.
+                      </li>
+                    );
+                  }
+                  items.push(
                     <li key={row.slug} className={`row ${rank <= 10 ? "tier-purple" : "tier-white"}`}>
                       <span className="rank">{rank}</span>
                       <span className="name">{row.display_name}</span>
                       <span className="count">{row.rsvp_count}</span>
                     </li>
                   );
+                  return items;
                 })}
               </ol>
             </>
@@ -166,6 +175,11 @@ export default function LeaderboardClient() {
         }
         .tier-purple .rank, .tier-purple .count { color: var(--amber); }
         .tier-white .rank, .tier-white .count { color: var(--ivory); }
+        .divider {
+          text-align: center; color: var(--ivory); font-family: var(--font-mono);
+          font-size: 12px; letter-spacing: 0.02em; padding: 14px 8px 4px;
+          border-top: 1px solid rgba(255,255,255,0.15); margin-top: 4px;
+        }
         .name { font-weight: 600; font-size: 16px; }
         .count {
           font-family: var(--font-mono); font-weight: 700; font-size: 20px;
