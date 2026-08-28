@@ -29,8 +29,8 @@ export default function LeaderboardPage() {
   return (
     <main className="wrap">
       <div className="header">
-        <span className="eyebrow">Rebel · Live</span>
-        <h1 className="title">The Rebel Games 2027</h1>
+        <span className="eyebrow">The Rebel Games 2027</span>
+        <h1 className="title">Leaderboard</h1>
         {updatedAt && (
           <span className="updated">Updated {updatedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
         )}
@@ -103,8 +103,8 @@ export default function LeaderboardPage() {
           text-transform: uppercase; color: var(--amber);
         }
         .title {
-          font-family: var(--font-display); font-size: clamp(40px, 10vw, 62px); font-weight: 700;
-          text-transform: uppercase; margin: 6px 0 4px; text-wrap: balance;
+          font-family: var(--font-display); font-size: clamp(36px, 9vw, 56px);
+          text-transform: uppercase; margin: 6px 0 4px;
         }
         .updated { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.5); }
         .empty { color: rgba(255,255,255,0.6); font-family: var(--font-mono); }
