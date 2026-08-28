@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://join.therebelevent.com"),
   title: "Rebel — Affiliate Game",
   description: "Bring the room. Watch your number climb.",
 };
