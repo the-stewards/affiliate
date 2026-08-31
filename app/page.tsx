@@ -1,4 +1,5 @@
 import Link from "next/link";
+import FindLinkForm from "./FindLinkForm";
 
 export default function Home() {
   return (
@@ -19,25 +20,19 @@ export default function Home() {
         Rebel
       </span>
       <h1 style={{ fontFamily: "var(--font-display)", fontSize: "clamp(32px,8vw,52px)", textTransform: "uppercase", margin: "8px 0 20px" }}>
-        You need a link
+        Lost your link?
       </h1>
       <p style={{ color: "rgba(255,255,255,0.7)", maxWidth: 420, marginBottom: 24 }}>
-        This site works through a personal invite link. If someone sent you here directly, ask them for their link — or check the leaderboard.
+        If you're already an ambassador, enter the email you signed up with and we'll find it.
       </p>
-      <Link
-        href="/leaderboard"
-        style={{
-          fontFamily: "var(--font-mono)",
-          background: "var(--amber)",
-          color: "var(--ink)",
-          padding: "12px 22px",
-          borderRadius: 10,
-          fontWeight: 700,
-          textDecoration: "none",
-        }}
-      >
-        View leaderboard →
-      </Link>
+      <FindLinkForm />
+      <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, marginTop: 28 }}>
+        Not an ambassador yet? Ask whoever invited you for their link, or{" "}
+        <Link href="/leaderboard" style={{ color: "var(--amber)" }}>
+          check the leaderboard
+        </Link>
+        .
+      </p>
     </main>
   );
 }
