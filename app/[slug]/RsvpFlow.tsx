@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 
 type Step = "rsvp" | "offer" | "games-detail" | "signup" | "signup-success";
@@ -43,6 +44,22 @@ export default function RsvpFlow({
 }) {
   const [step, setStep] = useState<Step>("rsvp");
   const [newSlug, setNewSlug] = useState<string | null>(null);
+  const router = useRouter();
+
+  // Declining the ambassador upsell still means they RSVP'd, so send them to
+  // the add-to-calendar page instead of the old plain "we'll be in touch"
+  // message - only on the full personalized /[slug] page (showIntro=true),
+  // not the compact Squarespace iframe embed (app/embed/page.tsx, showIntro
+  // false), where navigating to a full page designed for its own viewport
+  // would just render squeezed inside whatever small box that iframe is
+  // sized to. The embed keeps the original in-place confirmation.
+  function handleDecline() {
+    if (showIntro) {
+      router.push("/save");
+    } else {
+      setStep("signup-success");
+    }
+  }
 
   return (
     <div className="card">
@@ -55,14 +72,12 @@ export default function RsvpFlow({
           onDone={() => setStep("offer")}
         />
       )}
-      {step === "offer" && (
-        <Offer onYes={() => setStep("games-detail")} onNo={() => setStep("signup-success")} />
-      )}
+      {step === "offer" && <Offer onYes={() => setStep("games-detail")} onNo={handleDecline} />}
       {step === "games-detail" && (
         <GamesDetail
           totalRsvpCount={totalRsvpCount}
           onYes={() => setStep("signup")}
-          onNo={() => setStep("signup-success")}
+          onNo={handleDecline}
         />
       )}
       {step === "signup" && (

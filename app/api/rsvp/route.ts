@@ -110,7 +110,8 @@ export async function POST(req: NextRequest) {
         'rsvp_email', ${emailNormalized}::text,
         'rsvp_phone', ${phone?.trim() || null}::text,
         'rsvp_date', new_rsvp.created_at,
-        'affiliate_total_count', ${affiliate.current_count + 1}::int
+        'affiliate_total_count', ${affiliate.current_count + 1}::int,
+        'save_calendar_link', 'https://join.therebelevent.com/save'
       )
       from new_rsvp
       returning (select id from new_rsvp) as rsvp_id

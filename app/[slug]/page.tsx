@@ -33,7 +33,18 @@ export default async function AffiliatePage({ params }: { params: { slug: string
         totalRsvpCount={affiliate.total_rsvp_count}
       />
 
-      <style>{`
+      <style
+        // dangerouslySetInnerHTML, not children - `content: "";` below has a
+        // literal quote, and <style> is a RAWTEXT element the browser never
+        // entity-decodes. React's normal text-child escaping turns that quote
+        // into &quot; in the server HTML, which the browser then takes
+        // literally, causing a hydration mismatch on every single page load
+        // (this affects every affiliate's personal /[slug] page - the exact
+        // page every RSVP starts on). Setting innerHTML directly avoids the
+        // escape/decode round trip entirely. See app/save/page.tsx for the
+        // same fix, found while wiring up its links.
+        dangerouslySetInnerHTML={{
+          __html: `
         .wrap {
           min-height: 100dvh;
           display: flex;
@@ -84,7 +95,9 @@ export default async function AffiliatePage({ params }: { params: { slug: string
           margin: 6px 0 0;
           text-transform: uppercase;
         }
-      `}</style>
+      `,
+        }}
+      />
     </main>
   );
 }
