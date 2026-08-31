@@ -5,12 +5,50 @@ import { useEffect, useState } from "react";
 
 const MEDIA_FOLDER_URL = "https://drive.google.com/drive/folders/1k78aMD7hrJDLvDu7LcXk39X6vIH_s_6B?usp=drive_link";
 
+// Noon EDT on 10/21/2026. Targeting the UTC instant directly (rather than
+// storing "noon EST") sidesteps the fact that Oct 21 falls during daylight
+// time — DST doesn't end until early November — so "noon EST" that day would
+// actually be an hour off from the intended kickoff.
+const LAUNCH_UTC = Date.UTC(2026, 9, 21, 16, 0, 0);
+
 type Row = { slug: string; display_name: string; rsvp_count: number };
+
+// `now` starts null so the server-rendered markup and the client's first
+// render are identical (both show nothing yet) - seeding it with Date.now()
+// directly caused a hydration mismatch, since the server's clock and the
+// client's clock are never exactly the same millisecond. The real clock only
+// starts ticking after mount, in the effect below.
+function useCountdown(target: number) {
+  const [now, setNow] = useState<number | null>(null);
+
+  useEffect(() => {
+    setNow(Date.now());
+    const interval = setInterval(() => {
+      const next = Date.now();
+      setNow(next);
+      if (next >= target) clearInterval(interval);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [target]);
+
+  if (now === null) {
+    return { ready: false, isLive: false, days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+
+  const remaining = Math.max(0, target - now);
+  const days = Math.floor(remaining / 86_400_000);
+  const hours = Math.floor((remaining % 86_400_000) / 3_600_000);
+  const minutes = Math.floor((remaining % 3_600_000) / 60_000);
+  const seconds = Math.floor((remaining % 60_000) / 1000);
+
+  return { ready: true, isLive: now >= target, days, hours, minutes, seconds };
+}
 
 export default function LeaderboardClient() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
+  const { isLive, days, hours, minutes, seconds } = useCountdown(LAUNCH_UTC);
 
   async function load() {
     try {
@@ -23,18 +61,21 @@ export default function LeaderboardClient() {
     }
   }
 
+  // Don't hit the leaderboard API at all until kickoff — no point loading
+  // rankings (or the DB round trip) while the countdown is still running.
   useEffect(() => {
+    if (!isLive) return;
     load();
     const interval = setInterval(load, 60_000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isLive]);
 
   return (
     <main className="wrap">
       <div className="header">
         <span className="eyebrow">The Rebel Games 2027</span>
         <h1 className="title">Leaderboard</h1>
-        {updatedAt && (
+        {isLive && updatedAt && (
           <span className="updated">Updated {updatedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
         )}
         <div className="headerActions">
@@ -47,7 +88,30 @@ export default function LeaderboardClient() {
         </div>
       </div>
 
-      {loading ? (
+      {!isLive ? (
+        <div className="countdown">
+          <p className="countdownLabel">Rankings go live at kickoff</p>
+          <div className="countdownRow">
+            <div className="countdownUnit">
+              <span className="countdownNum">{days}</span>
+              <span className="countdownUnitLabel">Days</span>
+            </div>
+            <div className="countdownUnit">
+              <span className="countdownNum">{String(hours).padStart(2, "0")}</span>
+              <span className="countdownUnitLabel">Hours</span>
+            </div>
+            <div className="countdownUnit">
+              <span className="countdownNum">{String(minutes).padStart(2, "0")}</span>
+              <span className="countdownUnitLabel">Min</span>
+            </div>
+            <div className="countdownUnit">
+              <span className="countdownNum">{String(seconds).padStart(2, "0")}</span>
+              <span className="countdownUnitLabel">Sec</span>
+            </div>
+          </div>
+          <p className="countdownSub">Check back once the games are live to see where you stand.</p>
+        </div>
+      ) : loading ? (
         <p className="empty">Loading…</p>
       ) : rows.length === 0 ? (
         <p className="empty">No RSVPs yet — be the first.</p>
@@ -135,6 +199,26 @@ export default function LeaderboardClient() {
         }
         .actionBtn:hover { border-color: var(--amber); color: var(--amber); }
         .empty { color: rgba(255,255,255,0.6); font-family: var(--font-mono); }
+        .countdown { display: flex; flex-direction: column; align-items: center; gap: 18px; margin-top: 12px; }
+        .countdownLabel {
+          font-family: var(--font-mono); font-size: 13px; text-transform: uppercase;
+          letter-spacing: 0.08em; color: rgba(255,255,255,0.6); margin: 0;
+        }
+        .countdownRow { display: flex; gap: 12px; }
+        .countdownUnit {
+          display: flex; flex-direction: column; align-items: center; gap: 4px;
+          background: var(--ink-soft); border: 2px solid var(--amber); border-radius: 12px;
+          padding: 16px 14px; min-width: 68px;
+        }
+        .countdownNum {
+          font-family: var(--font-mono); font-weight: 700; font-size: clamp(28px, 7vw, 38px);
+          color: var(--amber); font-variant-numeric: tabular-nums;
+        }
+        .countdownUnitLabel {
+          font-family: var(--font-mono); font-size: 11px; text-transform: uppercase;
+          letter-spacing: 0.06em; color: rgba(255,255,255,0.5);
+        }
+        .countdownSub { color: rgba(255,255,255,0.6); font-size: 14px; max-width: 380px; text-align: center; margin: 0; }
         .lists {
           width: 100%; max-width: 560px;
           display: flex; flex-direction: column; gap: 10px;
