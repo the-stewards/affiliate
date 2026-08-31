@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
+
+const MEDIA_FOLDER_URL = "https://drive.google.com/drive/folders/1k78aMD7hrJDLvDu7LcXk39X6vIH_s_6B?usp=drive_link";
 
 type Row = { slug: string; display_name: string; rsvp_count: number };
 
@@ -34,6 +37,14 @@ export default function LeaderboardClient() {
         {updatedAt && (
           <span className="updated">Updated {updatedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
         )}
+        <div className="headerActions">
+          <Link href="/" className="actionBtn">
+            Lost your link?
+          </Link>
+          <a href={MEDIA_FOLDER_URL} target="_blank" rel="noopener noreferrer" className="actionBtn">
+            Download media kit
+          </a>
+        </div>
       </div>
 
       {loading ? (
@@ -116,6 +127,13 @@ export default function LeaderboardClient() {
           text-transform: uppercase; margin: 6px 0 4px;
         }
         .updated { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.5); }
+        .headerActions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+        .actionBtn {
+          font-family: var(--font-mono); font-size: 12px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 0.03em; padding: 9px 16px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.25);
+          color: var(--ivory); text-decoration: none; white-space: nowrap;
+        }
+        .actionBtn:hover { border-color: var(--amber); color: var(--amber); }
         .empty { color: rgba(255,255,255,0.6); font-family: var(--font-mono); }
         .lists {
           width: 100%; max-width: 560px;
