@@ -5,12 +5,50 @@ import { useEffect, useState } from "react";
 
 const MEDIA_FOLDER_URL = "https://drive.google.com/drive/folders/1k78aMD7hrJDLvDu7LcXk39X6vIH_s_6B?usp=drive_link";
 
+// Noon EDT on 10/21/2026 — when the Rebel Games end and positions on this
+// board lock in. Targeted as the fixed UTC instant (rather than a literal
+// "noon EST") because Oct 21 falls during daylight time - DST doesn't end
+// until early November - so a literal EST offset would land an hour off.
+const GAMES_END_UTC = Date.UTC(2026, 9, 21, 16, 0, 0);
+
 type Row = { slug: string; display_name: string; rsvp_count: number };
+
+// `now` starts null so the server-rendered markup and the client's first
+// render are identical - seeding it with Date.now() directly causes a
+// hydration mismatch, since the server's clock and the client's clock are
+// never exactly the same millisecond. The real clock only starts ticking
+// after mount, in the effect below.
+function useCountdown(target: number) {
+  const [now, setNow] = useState<number | null>(null);
+
+  useEffect(() => {
+    setNow(Date.now());
+    const interval = setInterval(() => {
+      const next = Date.now();
+      setNow(next);
+      if (next >= target) clearInterval(interval);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [target]);
+
+  if (now === null) {
+    return { ready: false, isOver: false, days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+
+  const remaining = Math.max(0, target - now);
+  const days = Math.floor(remaining / 86_400_000);
+  const hours = Math.floor((remaining % 86_400_000) / 3_600_000);
+  const minutes = Math.floor((remaining % 3_600_000) / 60_000);
+  const seconds = Math.floor((remaining % 60_000) / 1000);
+
+  return { ready: true, isOver: now >= target, days, hours, minutes, seconds };
+}
 
 export default function LeaderboardClient() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
+  const { isOver, days, hours, minutes, seconds } = useCountdown(GAMES_END_UTC);
 
   async function load() {
     try {
@@ -45,6 +83,34 @@ export default function LeaderboardClient() {
             Download media kit
           </a>
         </div>
+      </div>
+
+      <div className="countdown">
+        {isOver ? (
+          <p className="countdownOver">Time's up — positions are final.</p>
+        ) : (
+          <>
+            <p className="countdownLabel">Time left to lock in your position</p>
+            <div className="countdownRow">
+              <div className="countdownUnit">
+                <span className="countdownNum">{days}</span>
+                <span className="countdownUnitLabel">Days</span>
+              </div>
+              <div className="countdownUnit">
+                <span className="countdownNum">{String(hours).padStart(2, "0")}</span>
+                <span className="countdownUnitLabel">Hours</span>
+              </div>
+              <div className="countdownUnit">
+                <span className="countdownNum">{String(minutes).padStart(2, "0")}</span>
+                <span className="countdownUnitLabel">Min</span>
+              </div>
+              <div className="countdownUnit">
+                <span className="countdownNum">{String(seconds).padStart(2, "0")}</span>
+                <span className="countdownUnitLabel">Sec</span>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {loading ? (
@@ -135,6 +201,29 @@ export default function LeaderboardClient() {
         }
         .actionBtn:hover { border-color: var(--amber); color: var(--amber); }
         .empty { color: rgba(255,255,255,0.6); font-family: var(--font-mono); }
+        .countdown { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 28px; }
+        .countdownLabel {
+          font-family: var(--font-mono); font-size: 12px; text-transform: uppercase;
+          letter-spacing: 0.06em; color: rgba(255,255,255,0.6); margin: 0;
+        }
+        .countdownRow { display: flex; gap: 10px; }
+        .countdownUnit {
+          display: flex; flex-direction: column; align-items: center; gap: 4px;
+          background: var(--ink-soft); border: 1.5px solid var(--amber); border-radius: 10px;
+          padding: 10px 12px; min-width: 56px;
+        }
+        .countdownNum {
+          font-family: var(--font-mono); font-weight: 700; font-size: clamp(20px, 5vw, 26px);
+          color: var(--amber); font-variant-numeric: tabular-nums;
+        }
+        .countdownUnitLabel {
+          font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+          letter-spacing: 0.05em; color: rgba(255,255,255,0.5);
+        }
+        .countdownOver {
+          font-family: var(--font-mono); font-size: 13px; font-weight: 700; text-transform: uppercase;
+          letter-spacing: 0.04em; color: var(--rebel-red); margin: 0;
+        }
         .lists {
           width: 100%; max-width: 560px;
           display: flex; flex-direction: column; gap: 10px;
