@@ -47,7 +47,12 @@ export default async function AdminPage({
           <h1>Rebel Admin</h1>
           <p className="sub">Rebel Ambassador Games — live operations</p>
         </div>
-        <AutoRefresh />
+        <div className="topActions">
+          <a href="/admin/export/affiliates" className="exportBtn">
+            Export ambassador list (CSV)
+          </a>
+          <AutoRefresh />
+        </div>
       </div>
 
       <div className="stats">
@@ -134,6 +139,22 @@ export default async function AdminPage({
           color: var(--amber);
           margin: 4px 0 0;
         }
+        .topActions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .exportBtn {
+          font-family: var(--font-mono);
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          background: transparent;
+          color: var(--ink);
+          border: 1.5px solid var(--line);
+          border-radius: 8px;
+          padding: 9px 16px;
+          text-decoration: none;
+          white-space: nowrap;
+        }
+        .exportBtn:hover { border-color: var(--amber); color: var(--amber); }
         .stats { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
         .stat {
           flex: 1;
