@@ -27,6 +27,38 @@ async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs: nu
   }
 }
 
+// Counts up from 0 to `target` on mount instead of just showing the number -
+// a ticking headcount reads as "this is happening right now" (momentum/
+// social proof) at exactly the moment someone's deciding whether to RSVP.
+// Skips the animation for prefers-reduced-motion, since this is JS-driven
+// state rather than a CSS animation/transition, so the blanket
+// prefers-reduced-motion rule in globals.css doesn't cover it.
+function useCountUp(target: number, durationMs = 900) {
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setValue(target);
+      return;
+    }
+
+    let frame: number;
+    const start = performance.now();
+
+    function tick(now: number) {
+      const progress = Math.min((now - start) / durationMs, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      setValue(Math.round(eased * target));
+      if (progress < 1) frame = requestAnimationFrame(tick);
+    }
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [target, durationMs]);
+
+  return value;
+}
+
 export default function RsvpFlow({
   affiliateSlug,
   affiliateName,
@@ -130,6 +162,7 @@ function RsvpForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const honeypotRef = useRef<HTMLInputElement>(null);
+  const displayCount = useCountUp(totalRsvpCount ?? 0);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -173,7 +206,7 @@ function RsvpForm({
         <div className="headcountRow">
           <div className="headcountPill">
             <span className="pulse" />
-            <span className="headcountNum">{totalRsvpCount.toLocaleString()}</span>
+            <span className="headcountNum">{displayCount.toLocaleString()}</span>
             <span className="headcountLabel">are coming to Rebel Event 2027: The Reveal &mdash; LIVE</span>
           </div>
         </div>
