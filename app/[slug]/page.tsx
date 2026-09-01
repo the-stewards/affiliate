@@ -33,6 +33,16 @@ export default async function AffiliatePage({ params }: { params: { slug: string
         totalRsvpCount={affiliate.total_rsvp_count}
       />
 
+      <div className="announce">
+        <p>
+          Join us live as we reveal the Rebel 2027 dates, unveil our new venue, announce this year&rsquo;s speaker
+          lineup, and give you the first look at what we&rsquo;re building.
+        </p>
+        <p className="punch">New dates. New venue. New speakers.</p>
+        <p>We&rsquo;ve been building this for a while.</p>
+        <p className="closer">Now it&rsquo;s time to show you.</p>
+      </div>
+
       <style
         // dangerouslySetInnerHTML, not children - `content: "";` below has a
         // literal quote, and <style> is a RAWTEXT element the browser never
@@ -94,6 +104,32 @@ export default async function AffiliatePage({ params }: { params: { slug: string
           letter-spacing: 0.01em;
           margin: 6px 0 0;
           text-transform: uppercase;
+        }
+        .announce {
+          width: 100%;
+          max-width: 560px;
+          margin-top: 32px;
+          text-align: center;
+        }
+        .announce p {
+          font-size: 15px;
+          line-height: 1.6;
+          color: var(--slate);
+          margin: 0 0 14px;
+        }
+        .announce .punch {
+          font-family: var(--font-display);
+          font-size: clamp(20px, 4.5vw, 26px);
+          text-transform: uppercase;
+          color: var(--ink);
+          letter-spacing: 0.01em;
+          line-height: 1.3;
+          margin: 0 0 14px;
+        }
+        .announce .closer {
+          font-weight: 700;
+          color: var(--ink);
+          margin: 0;
         }
       `,
         }}
