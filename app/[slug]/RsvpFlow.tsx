@@ -174,10 +174,11 @@ function RsvpForm({
           <div className="headcountPill">
             <span className="pulse" />
             <span className="headcountNum">{totalRsvpCount.toLocaleString()}</span>
-            <span className="headcountLabel">are coming to the Rebel Event Launch</span>
+            <span className="headcountLabel">are coming to Rebel Event 2027: The Reveal &mdash; LIVE</span>
           </div>
         </div>
       )}
+      <p className="eventMeta">Wednesday, October 21, 2026 &middot; 12:00&ndash;1:00 PM ET</p>
       {showIntro && (
         <p className="sub">
           {affiliateName} is holding a spot for you on the Rebel launch call.
@@ -266,6 +267,10 @@ function RsvpForm({
         .headcountLabel {
           font-family: var(--font-mono); font-size: 12px; color: var(--ink);
           text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;
+        }
+        .eventMeta {
+          font-family: var(--font-mono); font-size: 12px; color: var(--slate);
+          text-align: center; letter-spacing: 0.02em; margin: 0 0 14px;
         }
         .nameRow { display: flex; gap: 10px; }
         .nameRow .field { flex: 1; min-width: 0; }
