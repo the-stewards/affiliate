@@ -71,7 +71,7 @@ export default async function AffiliatePage({ params }: { params: { slug: string
           background: var(--ink);
           color: var(--ivory);
           border-radius: 18px;
-          padding: 32px 28px 26px;
+          padding: 16px 28px 13px;
           text-align: center;
           box-shadow: 0 18px 40px rgba(0,0,0,0.28);
           position: relative;
@@ -100,9 +100,9 @@ export default async function AffiliatePage({ params }: { params: { slug: string
         .name {
           font-family: var(--font-display);
           font-weight: 400;
-          font-size: clamp(34px, 8vw, 52px);
+          font-size: clamp(18px, 4vw, 26px);
           letter-spacing: 0.01em;
-          margin: 6px 0 0;
+          margin: 3px 0 0;
           text-transform: uppercase;
         }
         .announce {
@@ -121,7 +121,7 @@ export default async function AffiliatePage({ params }: { params: { slug: string
           font-family: var(--font-display);
           font-size: clamp(20px, 4.5vw, 26px);
           text-transform: uppercase;
-          color: var(--ink);
+          color: var(--amber);
           letter-spacing: 0.01em;
           line-height: 1.3;
           margin: 0 0 14px;
