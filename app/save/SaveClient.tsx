@@ -222,8 +222,8 @@ export default function SaveClient() {
         .watchBtn:hover { filter: brightness(1.08); }
 
         .card {
-          width: 100%; max-width: 560px; background: var(--ink-soft);
-          border: 1px solid rgba(255,255,255,0.14); border-radius: 18px; padding: 28px;
+          width: 100%; max-width: 560px; background: var(--ivory);
+          border: 1px solid var(--line); border-radius: 18px; padding: 28px;
         }
         @media (max-width: 480px) { .card { padding: 22px 18px; } }
 
@@ -233,7 +233,7 @@ export default function SaveClient() {
         }
         .cardTitle {
           font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.01em;
-          font-size: 22px; line-height: 1.25; color: var(--ivory); margin-bottom: 22px;
+          font-size: 22px; line-height: 1.25; color: var(--ink); margin-bottom: 22px;
         }
 
         .grid {
@@ -242,36 +242,37 @@ export default function SaveClient() {
         }
         .label {
           font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
-          text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 6px;
+          text-transform: uppercase; color: var(--slate); margin-bottom: 6px;
         }
-        .value { font-size: 16px; color: var(--ivory); }
+        .value { font-size: 16px; color: var(--ink); }
         .link { color: var(--amber); text-decoration: underline; text-underline-offset: 2px; }
-        .link:hover { color: #fff; }
+        .link:hover { color: var(--rebel-red); }
 
         .heading {
           font-family: var(--font-display); text-transform: uppercase; letter-spacing: 0.03em;
-          font-size: 16px; color: var(--ivory); margin: 0 0 6px;
+          font-size: 16px; color: var(--ink); margin: 0 0 6px;
         }
-        .sub { font-size: 13.5px; color: rgba(255,255,255,0.6); margin: 0 0 18px; }
+        .sub { font-size: 13.5px; color: var(--slate); margin: 0 0 18px; }
 
         .buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
         .btn {
           flex: 1 1 150px; display: flex; align-items: center; justify-content: center;
           text-align: center; text-decoration: none; padding: 14px 12px; border-radius: 10px;
           font-family: var(--font-mono); font-weight: 700; font-size: 13px; letter-spacing: 0.03em;
-          text-transform: uppercase; white-space: nowrap; transition: filter 0.15s ease;
+          text-transform: uppercase; white-space: nowrap; transition: filter 0.15s ease, border-color 0.15s ease, color 0.15s ease;
         }
-        .btn:hover { filter: brightness(1.1); }
         .btn--primary { background: var(--rebel-red); color: #fff; }
-        .btn--secondary { background: transparent; border: 1.5px solid rgba(255,255,255,0.3); color: var(--ivory); }
+        .btn--primary:hover { filter: brightness(1.1); }
+        .btn--secondary { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
+        .btn--secondary:hover { border-color: var(--amber); color: var(--amber); }
 
-        .fallback { font-size: 12px; color: rgba(255,255,255,0.55); margin: 0 0 18px; }
-        .fallback a { color: rgba(255,255,255,0.55); text-decoration: underline; text-underline-offset: 2px; }
+        .fallback { font-size: 12px; color: var(--slate); margin: 0 0 18px; }
+        .fallback a { color: var(--slate); text-decoration: underline; text-underline-offset: 2px; }
         .fallback a:hover { color: var(--amber); }
 
         .quote {
           font-family: var(--font-body); font-style: italic; font-size: 14px; line-height: 1.55;
-          color: rgba(255,255,255,0.6); margin: 0;
+          color: var(--slate); margin: 0;
         }
 
         @media (max-width: 360px) {
