@@ -42,10 +42,13 @@ create unique index if not exists rsvps_email_lower_idx on rsvps (lower(email));
 create index if not exists rsvps_affiliate_id_idx on rsvps (affiliate_id);
 create index if not exists affiliates_referred_by_idx on affiliates (referred_by_id);
 
--- Outbound Zapier notifications, queued here instead of sent inline so an
--- RSVP/signup response never waits on Zapier's latency or uptime. A
--- scheduled Netlify function (netlify/functions/send-notifications.js)
--- flushes this on its own cadence.
+-- Outbound webhook notifications (Zapier, GHL), queued here instead of sent
+-- inline so an RSVP/signup response never waits on a third party's latency
+-- or uptime. A scheduled Netlify function
+-- (netlify/functions/send-notifications.js) flushes this on its own cadence,
+-- delivering to each configured target independently - sent_at tracks
+-- Zapier delivery, ghl_sent_at tracks GHL, so a slow/down target never
+-- causes a duplicate re-send to a target that already succeeded.
 create table if not exists notifications (
   id          bigserial primary key,
   event       text not null,
@@ -55,7 +58,15 @@ create table if not exists notifications (
   created_at  timestamptz not null default now()
 );
 
-create index if not exists notifications_unsent_idx on notifications (created_at) where sent_at is null;
+-- Backfill for tables created before GHL support existed.
+alter table notifications add column if not exists ghl_sent_at timestamptz;
+
+-- Dropped and recreated (not "if not exists") because the predicate changed
+-- to cover both delivery targets - an existing index with the old
+-- Zapier-only predicate would otherwise silently stick around unchanged.
+drop index if exists notifications_unsent_idx;
+create index notifications_unsent_idx on notifications (created_at)
+  where sent_at is null or ghl_sent_at is null;
 
 -- Singleton row tracking whether the last health check saw the site up or
 -- down, so the scheduled health-check function (see

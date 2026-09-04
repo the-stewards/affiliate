@@ -45,6 +45,18 @@ signup, for the Rebel launch call campaign.
      `affiliate_slug`, `affiliate_email`, `referred_by_slug`
 4. Wire each path to whatever you want — SMS via Twilio, Slack message, email, etc.
 
+## 2b. Set up the GHL webhook (for the RSVP confirmation SMS)
+
+1. In GoHighLevel, create a workflow with trigger **"Inbound Webhook"**.
+2. Copy the webhook URL it gives you into `.env` as `GHL_WEBHOOK_URL`.
+3. Same two event types as Zapier land on this one URL — filter on the
+   `event` field the same way (`new_rsvp`, `new_affiliate`).
+4. Inside the workflow: a **"Create/Update Contact"** action maps the
+   payload fields (`rsvp_first_name`, `rsvp_last_name`, `rsvp_email`,
+   `rsvp_phone`) onto the contact, then chain an SMS action after it.
+5. This runs independently of the Zapier webhook above — set one, both, or
+   neither. Nothing in the app needs to change either way.
+
 ## 3. Deploy to Netlify
 
 1. Push this project to a GitHub repo.
@@ -52,24 +64,26 @@ signup, for the Rebel launch call campaign.
    `netlify.toml` already tells it how to build (it uses `@netlify/plugin-nextjs`,
    which Netlify will install automatically) and schedules the notification
    sender — see below.
-3. In Site settings → Environment variables, add `DATABASE_URL` and
-   `ZAPIER_WEBHOOK_URL` (same values as your `.env`).
+3. In Site settings → Environment variables, add `DATABASE_URL` and whichever
+   of `ZAPIER_WEBHOOK_URL` / `GHL_WEBHOOK_URL` you're using (same values as
+   your `.env`).
 4. Deploy. Note the `*.netlify.app` URL it gives you.
 
 ### Notification delivery (why RSVPs stay fast under load)
 
-`/api/rsvp` and `/api/affiliates` never call Zapier directly — they just
-insert a row into the `notifications` table (a few ms) and return. Actual
-delivery to Zapier happens in `netlify/functions/send-notifications.js`, a
+`/api/rsvp` and `/api/affiliates` never call Zapier or GHL directly — they
+just insert a row into the `notifications` table (a few ms) and return.
+Actual delivery happens in `netlify/functions/send-notifications.js`, a
 **scheduled function** that Netlify runs on its own once a minute
 (`netlify.toml` sets `schedule = "* * * * *"` — no manual setup beyond
-deploying with `ZAPIER_WEBHOOK_URL` set in Netlify's env vars).
+deploying with the webhook URL(s) set in Netlify's env vars).
 
-This means a slow or momentarily-down Zapier hook can never add latency to
+This means a slow or momentarily-down webhook can never add latency to
 someone's RSVP, no matter how much traffic is hitting the site at once —
-the only thing on the request path is a fast Neon insert. Notifications
-typically land within a minute; failed sends retry automatically (up to 5
-attempts) on the next run.
+the only thing on the request path is a fast Neon insert. Zapier and GHL
+are delivered to independently (a slow/down one doesn't block or duplicate
+the other); notifications typically land within a minute, and failed sends
+retry automatically (up to 5 attempts per target) on the next run.
 
 ## 4. Point join.therebelevent.com at it (Squarespace)
 
