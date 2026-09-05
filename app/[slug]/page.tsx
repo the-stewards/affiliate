@@ -1,9 +1,28 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { sql } from "@/lib/db";
 import { RESERVED_SLUGS } from "@/lib/slug";
 import RsvpFlow from "./RsvpFlow";
 
 export const dynamic = "force-dynamic";
+
+// Static, not per-affiliate - the title/OG image are the same regardless of
+// whose /[slug] link brought someone here, only the on-page badge changes.
+export const metadata: Metadata = {
+  title: "Rebel Event 2027: The Reveal",
+  description: "Save your seat for the Rebel 2027 Launch Call — Wednesday, October 21, 2026.",
+  openGraph: {
+    title: "Rebel Event 2027: The Reveal",
+    description: "Save your seat for the Rebel 2027 Launch Call — Wednesday, October 21, 2026.",
+    images: ["/save-og.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Rebel Event 2027: The Reveal",
+    description: "Save your seat for the Rebel 2027 Launch Call — Wednesday, October 21, 2026.",
+    images: ["/save-og.png"],
+  },
+};
 
 async function getAffiliate(slug: string) {
   if (RESERVED_SLUGS.has(slug.toLowerCase())) return null;
