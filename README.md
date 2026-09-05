@@ -69,6 +69,14 @@ signup, for the Rebel launch call campaign.
    your `.env`).
 4. Deploy. Note the `*.netlify.app` URL it gives you.
 
+**Setting or changing `ZAPIER_WEBHOOK_URL` / `GHL_WEBHOOK_URL` after the site is
+already deployed requires a fresh deploy to take effect** — confirmed the hard
+way: `netlify env:set` alone didn't reach the already-running scheduled
+function, which kept silently seeing the old value (i.e. missing) for several
+minutes until the next deploy went out. Trigger a deploy (Netlify dashboard
+"Trigger deploy," or `netlify deploy --prod --build`) any time one of these
+changes, not just the first time it's set.
+
 ### Notification delivery (why RSVPs stay fast under load)
 
 `/api/rsvp` and `/api/affiliates` never call Zapier or GHL directly — they
