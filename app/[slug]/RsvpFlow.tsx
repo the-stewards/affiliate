@@ -648,6 +648,7 @@ function SignupSuccess({ newSlug }: { newSlug: string | null }) {
         <p style={{ color: "var(--slate)", fontSize: 15, lineHeight: 1.5 }}>
           We'll be in touch with the details.
         </p>
+        <SaveCalendarLink />
       </div>
     );
   }
@@ -681,7 +682,37 @@ function SignupSuccess({ newSlug }: { newSlug: string | null }) {
         Share it anywhere. Every RSVP through your link counts toward your score on the leaderboard.
         Bookmark your link too — visiting it again is also how you check your live count later.
       </p>
+      <SaveCalendarLink />
     </div>
+  );
+}
+
+// Shown on both SignupSuccess branches - becoming an ambassador only happens
+// after RSVPing first (rsvp -> offer -> games-detail -> signup), so everyone
+// who lands here already has an RSVP on file, same as the decliners who get
+// routed straight to /save. This is the one place ambassadors themselves see
+// the prompt, since handleDecline only fires for people who said no.
+function SaveCalendarLink() {
+  return (
+    <a
+      href="/save"
+      style={{
+        display: "inline-block",
+        marginTop: 16,
+        fontFamily: "var(--font-mono)",
+        fontSize: 13,
+        fontWeight: 700,
+        letterSpacing: "0.02em",
+        textTransform: "uppercase",
+        color: "var(--ink)",
+        border: "1.5px solid var(--line)",
+        borderRadius: 8,
+        padding: "10px 18px",
+        textDecoration: "none",
+      }}
+    >
+      Save The Reveal to your calendar
+    </a>
   );
 }
 
