@@ -81,6 +81,12 @@ create table if not exists health_state (
 );
 insert into health_state (id, is_down) values (1, false) on conflict (id) do nothing;
 
+-- Same state-change-only alerting pattern as is_down, but for a stuck
+-- notification delivery backlog (a target that's exhausted all 5 retry
+-- attempts and still hasn't delivered) - the exact failure mode that
+-- already happened once with Zapier silently going down mid-event.
+alter table health_state add column if not exists notifications_backlogged boolean not null default false;
+
 -- Shared rate-limit counters, keyed by e.g. "rsvp:1.2.3.4". Backed by
 -- Postgres instead of in-memory so the limit actually holds across
 -- Netlify's multiple concurrent function instances - an in-memory Map

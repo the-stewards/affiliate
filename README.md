@@ -37,12 +37,22 @@ signup, for the Rebel launch call campaign.
 
 1. In Zapier, create a new Zap with trigger **"Catch Hook"**.
 2. Copy the webhook URL it gives you into `.env` as `ZAPIER_WEBHOOK_URL`.
-3. The app sends two event types to that one URL — build separate Zap paths
-   (Filter or Paths by Zapier) keyed on the `event` field:
+3. The app sends several event types to that one URL — build separate Zap
+   paths (Filter or Paths by Zapier) keyed on the `event` field:
    - `event: "new_rsvp"` → payload includes `affiliate_name`, `affiliate_slug`,
      `rsvp_name`, `rsvp_email`, `rsvp_phone`, `affiliate_total_count`
    - `event: "new_affiliate"` → payload includes `affiliate_name`,
      `affiliate_slug`, `affiliate_email`, `referred_by_slug`
+   - `event: "site_down"` / `"site_recovered"` → queued by
+     `netlify/functions/health-check.js` when the live site's health check
+     changes state (see below)
+   - `event: "notification_backlog"` / `"notification_backlog_cleared"` →
+     queued by the same health-check function when a Zapier/GHL delivery
+     target has exhausted all 5 retry attempts on at least one notification
+     without delivering. Payload includes `total_stuck`, `zapier_stuck`,
+     `ghl_stuck` counts. This is the ops alert for "a webhook silently broke
+     and RSVPs stopped notifying anyone" - wire it to something you'll
+     actually notice, e.g. an SMS to yourself.
 4. Wire each path to whatever you want — SMS via Twilio, Slack message, email, etc.
 
 ## 2b. Set up the GHL webhook (for the RSVP confirmation SMS)
