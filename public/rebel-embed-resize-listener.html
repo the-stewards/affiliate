@@ -1,0 +1,52 @@
+<!--
+  Rebel — iframe auto-resize listener
+
+  Pairs with the postMessage sender in app/useIframeAutoResize.ts, used by
+  both the condensed Reveal RSVP flow (app/embed/reveal) and /save. Each of
+  those posts its real content height to its parent frame on load, on any
+  size change (including step transitions in the RSVP flow), and once
+  fonts finish loading. This listener is what turns those messages into an
+  actual height change on the right iframe - without it, an iframe just
+  keeps whatever fixed height it was given and clips/scrolls internally.
+
+  Matches by event.source (the iframe whose window actually sent the
+  message) rather than by src, so one listener handles every Rebel iframe
+  on the page - no need to duplicate this per embed.
+
+  WHERE THIS GOES: paste both the iframe(s) and this <script> into the same
+  Squarespace code block (or that page's header code injection, Settings >
+  Advanced > Code Injection). It only needs to run once per page.
+
+  REVEAL RSVP FLOW EMBED (forwards the page's own ?ref= into the iframe):
+
+    <div id="rebel-reveal-embed"></div>
+    <script>
+      (function () {
+        var ref = new URLSearchParams(window.location.search).get("ref") || "";
+        var iframe = document.createElement("iframe");
+        iframe.src = "https://join.therebelevent.com/embed/reveal?ref=" + encodeURIComponent(ref);
+        iframe.style.width = "100%";
+        iframe.style.border = "0";
+        iframe.style.height = "650px"; // starting height only - resizes itself once loaded
+        iframe.title = "Rebel 2027 Launch Call — RSVP";
+        document.getElementById("rebel-reveal-embed").appendChild(iframe);
+      })();
+    </script>
+
+  SAVE-TO-CALENDAR EMBED:
+
+    <iframe src="https://join.therebelevent.com/save" style="width:100%;border:0;height:600px"
+            title="Save to Your Calendar"></iframe>
+-->
+<script>
+  window.addEventListener("message", function (event) {
+    if (!event.data || event.data.type !== "rebel-embed-resize") return;
+    var iframes = document.querySelectorAll("iframe");
+    for (var i = 0; i < iframes.length; i++) {
+      if (iframes[i].contentWindow === event.source) {
+        iframes[i].style.height = event.data.height + "px";
+        break;
+      }
+    }
+  });
+</script>

@@ -32,7 +32,7 @@ export default async function EmbedRevealPage({ searchParams }: { searchParams: 
   }
 
   return (
-    <div style={{ padding: 16 }}>
+    <div>
       <RsvpFlow
         affiliateSlug={affiliate.slug}
         affiliateName={affiliate.display_name}

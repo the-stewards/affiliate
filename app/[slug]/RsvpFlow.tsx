@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
+import { useIframeAutoResize } from "../useIframeAutoResize";
 
 type Step = "rsvp" | "offer" | "games-detail" | "signup" | "signup-success";
 
@@ -87,6 +88,13 @@ export default function RsvpFlow({
   const [step, setStep] = useState<Step>("rsvp");
   const [newSlug, setNewSlug] = useState<string | null>(null);
   const router = useRouter();
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Only the condensed embed (app/embed/reveal) is iframed on Squarespace
+  // with a fixed host-side height - /[slug] and the original /embed route
+  // render full-page or in their own already-sized iframe, so gating on
+  // condensed keeps this a no-op there.
+  useIframeAutoResize(cardRef, condensed);
 
   // Declining the ambassador upsell still means they RSVP'd, so send them to
   // the add-to-calendar page instead of the old plain "we'll be in touch"
@@ -104,7 +112,7 @@ export default function RsvpFlow({
   }
 
   return (
-    <div className={condensed ? "card condensed" : "card"}>
+    <div ref={cardRef} className={condensed ? "card condensed" : "card"}>
       {step === "rsvp" && (
         <RsvpForm
           affiliateSlug={affiliateSlug}
@@ -155,12 +163,21 @@ export default function RsvpFlow({
         /* Nothing but the individual field/button boxes should read as a
            shape here - no card outline, no fill - so it sits directly on
            whatever page hosts the embed (built for the black Squarespace
-           Reveal page, hence the white borders below). */
+           Reveal page, hence the white borders below). Padding (moved in
+           from app/embed/reveal/page.tsx wrapping div) and a zeroed
+           margin-top (overriding the base .card rule above) both matter
+           for more than looks here - useIframeAutoResize measures this
+           exact box, so any spacing living outside it (a wrapping div
+           padding, an external margin on this element itself) is
+           invisible to that measurement, and the iframe renders taller
+           than the height it reports.
+        */
         .card.condensed {
           background: transparent;
           border: none;
           border-radius: 0;
-          padding: 0;
+          padding: 16px;
+          margin-top: 0;
         }
       `}</style>
     </div>
