@@ -402,7 +402,7 @@ function RsvpForm({
           font-family: var(--font-display); font-size: 15px; letter-spacing: 0.04em;
         }
         form.condensed .field input::placeholder {
-          color: rgba(255,255,255,0.65); font-family: var(--font-display);
+          color: var(--ivory); font-family: var(--font-display);
           text-transform: uppercase; letter-spacing: 0.04em;
         }
         form.condensed .field input:focus { border-color: var(--rebel-red); }
@@ -788,7 +788,7 @@ function SignupForm({
           font-family: var(--font-display); font-size: 15px; letter-spacing: 0.04em;
         }
         form.condensed .field input::placeholder {
-          color: rgba(255,255,255,0.65); font-family: var(--font-display);
+          color: var(--ivory); font-family: var(--font-display);
           text-transform: uppercase; letter-spacing: 0.04em;
         }
         form.condensed .field input:focus { border-color: var(--rebel-red); }
