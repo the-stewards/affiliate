@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
         affiliate_slug: inserted[0].slug,
         affiliate_email: emailNormalized,
         affiliate_phone: phone?.trim() || null,
-        affiliate_link: `https://join.therebelevent.com/${inserted[0].slug}`,
+        affiliate_link: `https://www.therebelevent.com/?ref=${inserted[0].slug}`,
         referred_by_slug: referredBySlug || null,
       });
 

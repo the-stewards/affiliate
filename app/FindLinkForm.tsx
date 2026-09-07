@@ -66,7 +66,7 @@ export default function FindLinkForm() {
   }
 
   if (result) {
-    const link = `join.therebelevent.com/${result.slug}`;
+    const link = `www.therebelevent.com/?ref=${result.slug}`;
     return (
       <div className="findLink">
         <p className="found">Found it, {result.displayName.split(" ")[0]}</p>
