@@ -120,6 +120,7 @@ export default function RsvpFlow({
       {step === "games-detail" && (
         <GamesDetail
           totalRsvpCount={totalRsvpCount}
+          condensed={condensed}
           onYes={() => setStep("signup")}
           onNo={handleDecline}
         />
@@ -435,15 +436,17 @@ function Offer({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
 
 function GamesDetail({
   totalRsvpCount,
+  condensed = false,
   onYes,
   onNo,
 }: {
   totalRsvpCount?: number;
+  condensed?: boolean;
   onYes: () => void;
   onNo: () => void;
 }) {
   return (
-    <div>
+    <div className={condensed ? "condensed" : undefined}>
       <span className="eyebrow">Rebel Ambassador Games</span>
       <h2 className="title">Bring your people. Win the games.</h2>
       <p className="sub">
@@ -536,6 +539,30 @@ function GamesDetail({
           font-size: 13px; font-weight: 600; padding: 12px 0 0; cursor: pointer; text-align: center;
         }
         .skip:hover { color: var(--ink); text-decoration: underline; }
+
+        /* Same black-backdrop treatment as the RSVP form step - the light-
+           theme colors above (dark title/body text, tinted prize boxes)
+           were built for a white card and read as invisible or illegible
+           on black, which is what this fixes. */
+        .condensed .title { color: var(--ivory); }
+        .condensed .sub { color: rgba(255,255,255,0.7); }
+        .condensed .prize {
+          background: transparent; border: 1px solid var(--ivory); border-radius: 0;
+        }
+        .condensed .prizeDetail { color: rgba(255,255,255,0.85); }
+        .condensed .prize-gold .prizeRank { color: var(--rebel-red); }
+        .condensed .prize-silver .prizeRank { color: var(--amber); }
+        .condensed .prize-bronze .prizeRank { color: var(--ivory); }
+        .condensed .momentumPill {
+          background: transparent; border: 1px solid var(--ivory); border-radius: 4px;
+        }
+        .condensed .momentumLabel { color: var(--ivory); white-space: nowrap; }
+        .condensed .cta {
+          border-radius: 0; font-family: var(--font-display); font-size: 18px;
+          letter-spacing: 0.06em; text-transform: uppercase; padding: 18px;
+        }
+        .condensed .skip { color: rgba(255,255,255,0.6); }
+        .condensed .skip:hover { color: var(--ivory); }
       `}</style>
     </div>
   );
