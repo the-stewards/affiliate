@@ -376,7 +376,7 @@ function RsvpForm({
           overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
         }
         form.condensed .field input {
-          background: transparent; border: 2px solid var(--ivory); border-radius: 0;
+          background: transparent; border: 1px solid var(--ivory); border-radius: 0;
           color: var(--ivory); padding: 18px 16px;
           font-family: var(--font-display); font-size: 15px; letter-spacing: 0.04em;
           text-transform: uppercase;
@@ -392,7 +392,7 @@ function RsvpForm({
           font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase;
         }
         form.condensed .headcountPill {
-          background: transparent; border: 1.5px solid var(--ivory); border-radius: 4px;
+          background: transparent; border: 1px solid var(--ivory); border-radius: 4px;
         }
         form.condensed .headcountLabel { color: var(--ivory); white-space: nowrap; }
       `}</style>
