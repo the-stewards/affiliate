@@ -410,6 +410,7 @@ function RsvpForm({
         form.condensed .cta {
           border-radius: 0; padding: 18px; font-family: var(--font-display);
           font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase;
+          font-weight: normal;
         }
         form.condensed .headcountPill {
           background: transparent; border: 1px solid var(--ivory); border-radius: 4px;
@@ -463,6 +464,7 @@ function Offer({
         .condensed .cta {
           border-radius: 0; font-family: var(--font-display); font-size: 18px;
           letter-spacing: 0.06em; text-transform: uppercase; padding: 18px;
+          font-weight: normal;
         }
         .condensed .skip { color: rgba(255,255,255,0.6); }
         .condensed .skip:hover { color: var(--ivory); }
@@ -597,6 +599,7 @@ function GamesDetail({
         .condensed .cta {
           border-radius: 0; font-family: var(--font-display); font-size: 18px;
           letter-spacing: 0.06em; text-transform: uppercase; padding: 18px;
+          font-weight: normal;
         }
         .condensed .skip { color: rgba(255,255,255,0.6); }
         .condensed .skip:hover { color: var(--ivory); }
@@ -801,6 +804,7 @@ function SignupForm({
         form.condensed .cta {
           border-radius: 0; font-family: var(--font-display); font-size: 18px;
           letter-spacing: 0.06em; text-transform: uppercase; padding: 18px;
+          font-weight: normal;
         }
       `}</style>
     </form>
