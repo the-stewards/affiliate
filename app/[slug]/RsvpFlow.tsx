@@ -228,7 +228,9 @@ function RsvpForm({
   return (
     <form onSubmit={handleSubmit} className={condensed ? "condensed" : undefined}>
       {!condensed && <h2 className="title">Save your seat</h2>}
-      {typeof totalRsvpCount === "number" && totalRsvpCount > 0 && (
+      {/* Hidden until the count is actually impressive - a low number here
+          undercuts the social proof it's meant to create. */}
+      {typeof totalRsvpCount === "number" && totalRsvpCount >= 100 && (
         <div className="headcountRow">
           <div className="headcountPill">
             <span className="pulse" />
@@ -449,7 +451,7 @@ function GamesDetail({
         them land a seat in the room — and the more you bring, the better your shot at the podium.
       </p>
 
-      {typeof totalRsvpCount === "number" && totalRsvpCount > 0 && (
+      {typeof totalRsvpCount === "number" && totalRsvpCount >= 100 && (
         <div className="momentumRow">
           <div className="momentumPill">
             <span className="pulse" />
