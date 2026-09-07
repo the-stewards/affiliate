@@ -38,6 +38,7 @@ export default async function EmbedRevealPage({ searchParams }: { searchParams: 
         affiliateName={affiliate.display_name}
         showIntro={false}
         condensed={true}
+        ctaLabel="RESERVE MY SPOT"
         totalRsvpCount={affiliate.total_rsvp_count}
       />
       {/* Transparent so the iframe blends into whatever the Squarespace page

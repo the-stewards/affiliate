@@ -65,6 +65,7 @@ export default function RsvpFlow({
   showIntro = true,
   totalRsvpCount,
   condensed = false,
+  ctaLabel = "RSVP now",
 }: {
   affiliateSlug: string;
   affiliateName: string;
@@ -79,6 +80,9 @@ export default function RsvpFlow({
   // the event name and date in its own hero, where repeating it just adds
   // friction before the actual form fields. Headcount pill stays either way.
   condensed?: boolean;
+  // Lets an embedding page match its own hero CTA copy (e.g. the
+  // Squarespace Reveal page's "Reserve My Spot" button).
+  ctaLabel?: string;
 }) {
   const [step, setStep] = useState<Step>("rsvp");
   const [newSlug, setNewSlug] = useState<string | null>(null);
@@ -108,6 +112,7 @@ export default function RsvpFlow({
           showIntro={showIntro}
           totalRsvpCount={totalRsvpCount}
           condensed={condensed}
+          ctaLabel={ctaLabel}
           onDone={() => setStep("offer")}
         />
       )}
@@ -154,6 +159,7 @@ function RsvpForm({
   showIntro,
   totalRsvpCount,
   condensed = false,
+  ctaLabel = "RSVP now",
   onDone,
 }: {
   affiliateSlug: string;
@@ -161,6 +167,7 @@ function RsvpForm({
   showIntro: boolean;
   totalRsvpCount?: number;
   condensed?: boolean;
+  ctaLabel?: string;
   onDone: () => void;
 }) {
   const [firstName, setFirstName] = useState("");
@@ -284,7 +291,7 @@ function RsvpForm({
       {error && <p className="error">{error}</p>}
 
       <button type="submit" className="cta" disabled={submitting}>
-        {submitting ? "Saving..." : "RSVP now"}
+        {submitting ? "Saving..." : ctaLabel}
       </button>
 
       <style>{`
