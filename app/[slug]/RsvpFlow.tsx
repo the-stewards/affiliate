@@ -357,7 +357,7 @@ function RsvpForm({
           50% { opacity: 0.35; transform: scale(0.8); }
         }
         .headcountNum {
-          font-family: var(--font-mono); font-weight: 700; font-size: 19px; color: var(--amber);
+          font-family: var(--font-mono); font-weight: 700; font-size: 19px; color: var(--rebel-red);
           font-variant-numeric: tabular-nums;
         }
         .headcountLabel {
@@ -546,7 +546,7 @@ function GamesDetail({
           50% { opacity: 0.35; transform: scale(0.8); }
         }
         .momentumNum {
-          font-family: var(--font-mono); font-weight: 700; font-size: 19px; color: var(--amber);
+          font-family: var(--font-mono); font-weight: 700; font-size: 19px; color: var(--rebel-red);
           font-variant-numeric: tabular-nums;
         }
         .momentumLabel {
