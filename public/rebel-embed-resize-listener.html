@@ -15,11 +15,22 @@
 
   WHERE THIS GOES: paste both the iframe(s) and this <script> into the same
   Squarespace code block (or that page's header code injection, Settings >
-  Advanced > Code Injection). It only needs to run once per page.
+  Advanced > Code Injection). The resize LISTENER below only needs to run
+  once per page, no matter how many embeds are on it - but the REVEAL RSVP
+  FLOW EMBED script is safe to paste as many times as you want on the same
+  page (hero, footer, wherever), because it places its iframe relative to
+  its own <script> tag (document.currentScript) instead of hunting for an
+  id. An earlier version used a fixed id="rebel-reveal-embed" div + a
+  getElementById lookup - that broke the moment the block was pasted
+  twice, since getElementById always returns the FIRST element with that
+  id: both copies' scripts found the SAME div (the one from the first
+  copy), so both iframes landed stacked there and the second copy's own
+  div sat empty. Same currentScript-relative approach already used by
+  add-to-calendar-embed.js for the same reason.
 
-  REVEAL RSVP FLOW EMBED (forwards the page's own ?ref= into the iframe):
+  REVEAL RSVP FLOW EMBED (forwards the page's own ?ref= into the iframe) -
+  paste this whole block once per spot you want the form to appear:
 
-    <div id="rebel-reveal-embed"></div>
     <script>
       (function () {
         var ref = new URLSearchParams(window.location.search).get("ref") || "";
@@ -29,7 +40,13 @@
         iframe.style.border = "0";
         iframe.style.height = "650px"; // starting height only - resizes itself once loaded
         iframe.title = "Rebel 2027 Launch Call — RSVP";
-        document.getElementById("rebel-reveal-embed").appendChild(iframe);
+
+        var currentScript = document.currentScript;
+        if (currentScript && currentScript.parentNode) {
+          currentScript.parentNode.insertBefore(iframe, currentScript.nextSibling);
+        } else {
+          document.body.appendChild(iframe);
+        }
       })();
     </script>
 
