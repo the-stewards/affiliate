@@ -36,7 +36,7 @@ export default async function EmbedRevealPage({ searchParams }: { searchParams: 
       <RsvpFlow
         affiliateSlug={affiliate.slug}
         affiliateName={affiliate.display_name}
-        showIntro={true}
+        showIntro={false}
         condensed={true}
         totalRsvpCount={affiliate.total_rsvp_count}
       />
