@@ -40,6 +40,13 @@ export default async function EmbedRevealPage({ searchParams }: { searchParams: 
         condensed={true}
         totalRsvpCount={affiliate.total_rsvp_count}
       />
+      {/* Transparent so the iframe blends into whatever the Squarespace page
+          behind it looks like - only .card (the white form itself, from
+          RsvpFlow's own styles) stays opaque. Scoped to this route only, not
+          globals.css, since every other page relies on the ivory body bg. */}
+      <style>{`
+        html, body { background: transparent !important; }
+      `}</style>
     </div>
   );
 }
