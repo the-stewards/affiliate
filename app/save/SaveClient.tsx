@@ -119,11 +119,11 @@ export default function SaveClient() {
            measurement and the iframe would render taller than the height
            it reports, same as the fix in app/[slug]/RsvpFlow.tsx's
            .card.condensed rule. */
-        .content { padding: 24px 20px 40px; }
+        .content { padding: 10px 20px 10px; }
         .header { text-align: center; margin-bottom: 20px; }
         .title {
-          font-family: var(--font-display); font-size: clamp(32px, 8vw, 48px);
-          text-transform: uppercase; margin: 0;
+          font-family: var(--font-display); font-size: clamp(16px, 4vw, 24px);
+          text-transform: uppercase; margin: 0; color: var(--rebel-red);
         }
 
         .card {
