@@ -93,11 +93,6 @@ export default function SaveClient() {
           </a>
           .
         </p>
-
-        <p className="quote">
-          VIP access goes to whoever&rsquo;s actually in the room when we open it &mdash; get this on your calendar
-          now, not &ldquo;later.&rdquo;
-        </p>
       </div>
       </div>
 
@@ -124,8 +119,8 @@ export default function SaveClient() {
            measurement and the iframe would render taller than the height
            it reports, same as the fix in app/[slug]/RsvpFlow.tsx's
            .card.condensed rule. */
-        .content { padding: 48px 20px 80px; }
-        .header { text-align: center; margin-bottom: 40px; }
+        .content { padding: 24px 20px 40px; }
+        .header { text-align: center; margin-bottom: 20px; }
         .title {
           font-family: var(--font-display); font-size: clamp(32px, 8vw, 48px);
           text-transform: uppercase; margin: 0;
@@ -176,14 +171,9 @@ export default function SaveClient() {
         .btn--secondary { background: transparent; border: 1px solid var(--ivory); color: var(--ivory); }
         .btn--secondary:hover { border-color: var(--rebel-red); color: var(--rebel-red); }
 
-        .fallback { font-size: 12px; color: rgba(255,255,255,0.6); margin: 0 0 18px; }
+        .fallback { font-size: 12px; color: rgba(255,255,255,0.6); margin: 0; }
         .fallback a { color: rgba(255,255,255,0.6); text-decoration: underline; text-underline-offset: 2px; }
         .fallback a:hover { color: var(--rebel-red); }
-
-        .quote {
-          font-family: var(--font-body); font-style: italic; font-size: 14px; line-height: 1.55;
-          color: rgba(255,255,255,0.7); margin: 0;
-        }
 
         @media (max-width: 360px) {
           .btn { flex: 1 1 100%; }
