@@ -64,6 +64,7 @@ export default function RsvpFlow({
   affiliateName,
   showIntro = true,
   totalRsvpCount,
+  condensed = false,
 }: {
   affiliateSlug: string;
   affiliateName: string;
@@ -73,6 +74,11 @@ export default function RsvpFlow({
   showIntro?: boolean;
   // Event-wide RSVP count, shown as social proof on the initial form only.
   totalRsvpCount?: number;
+  // Drops the "Save your seat" heading and date/time line - for embedding
+  // on a page (e.g. the Squarespace Reveal landing page) that already shows
+  // the event name and date in its own hero, where repeating it just adds
+  // friction before the actual form fields. Headcount pill stays either way.
+  condensed?: boolean;
 }) {
   const [step, setStep] = useState<Step>("rsvp");
   const [newSlug, setNewSlug] = useState<string | null>(null);
@@ -101,6 +107,7 @@ export default function RsvpFlow({
           affiliateName={affiliateName}
           showIntro={showIntro}
           totalRsvpCount={totalRsvpCount}
+          condensed={condensed}
           onDone={() => setStep("offer")}
         />
       )}
@@ -146,12 +153,14 @@ function RsvpForm({
   affiliateName,
   showIntro,
   totalRsvpCount,
+  condensed = false,
   onDone,
 }: {
   affiliateSlug: string;
   affiliateName: string;
   showIntro: boolean;
   totalRsvpCount?: number;
+  condensed?: boolean;
   onDone: () => void;
 }) {
   const [firstName, setFirstName] = useState("");
@@ -201,7 +210,7 @@ function RsvpForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2 className="title">Save your seat</h2>
+      {!condensed && <h2 className="title">Save your seat</h2>}
       {typeof totalRsvpCount === "number" && totalRsvpCount > 0 && (
         <div className="headcountRow">
           <div className="headcountPill">
@@ -211,7 +220,9 @@ function RsvpForm({
           </div>
         </div>
       )}
-      <p className="eventMeta">Wednesday, October 21, 2026 &middot; 12:00&ndash;1:00 PM ET</p>
+      {!condensed && (
+        <p className="eventMeta">Wednesday, October 21, 2026 &middot; 12:00&ndash;1:00 PM ET</p>
+      )}
       {showIntro && (
         <p className="sub">
           {affiliateName} is holding a spot for you on the Rebel launch call.
