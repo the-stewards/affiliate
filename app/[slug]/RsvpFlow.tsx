@@ -116,7 +116,9 @@ export default function RsvpFlow({
           onDone={() => setStep("offer")}
         />
       )}
-      {step === "offer" && <Offer onYes={() => setStep("games-detail")} onNo={handleDecline} />}
+      {step === "offer" && (
+        <Offer condensed={condensed} onYes={() => setStep("games-detail")} onNo={handleDecline} />
+      )}
       {step === "games-detail" && (
         <GamesDetail
           totalRsvpCount={totalRsvpCount}
@@ -128,13 +130,14 @@ export default function RsvpFlow({
       {step === "signup" && (
         <SignupForm
           referredBySlug={affiliateSlug}
+          condensed={condensed}
           onDone={(slug) => {
             setNewSlug(slug);
             setStep("signup-success");
           }}
         />
       )}
-      {step === "signup-success" && <SignupSuccess newSlug={newSlug} />}
+      {step === "signup-success" && <SignupSuccess newSlug={newSlug} condensed={condensed} />}
 
       <style>{`
         .card {
@@ -263,7 +266,7 @@ function RsvpForm({
 
       <div className="nameRow">
         <label className="field">
-          <span>First name</span>
+          <span className="fieldLabel">First name</span>
           <input
             required
             value={firstName}
@@ -272,7 +275,7 @@ function RsvpForm({
           />
         </label>
         <label className="field">
-          <span>Last name</span>
+          <span className="fieldLabel">Last name</span>
           <input
             required
             value={lastName}
@@ -282,7 +285,7 @@ function RsvpForm({
         </label>
       </div>
       <label className="field">
-        <span>Email</span>
+        <span className="fieldLabel">Email</span>
         <input
           required
           type="email"
@@ -292,7 +295,7 @@ function RsvpForm({
         />
       </label>
       <label className="field">
-        <span>Phone (optional)</span>
+        <span className="fieldLabel">Phone (optional)</span>
         <input
           type="tel"
           value={phone}
@@ -372,7 +375,7 @@ function RsvpForm({
            corners, bold white-bordered fields with no fill, uppercase
            display-font placeholders carrying the label instead of a
            separate label line above each field. */
-        form.condensed .field span {
+        form.condensed .fieldLabel {
           position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
           overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
         }
@@ -380,7 +383,6 @@ function RsvpForm({
           background: transparent; border: 1px solid var(--ivory); border-radius: 0;
           color: var(--ivory); padding: 18px 16px;
           font-family: var(--font-display); font-size: 15px; letter-spacing: 0.04em;
-          text-transform: uppercase;
         }
         form.condensed .field input::placeholder {
           color: rgba(255,255,255,0.65); font-family: var(--font-display);
@@ -401,9 +403,17 @@ function RsvpForm({
   );
 }
 
-function Offer({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
+function Offer({
+  condensed = false,
+  onYes,
+  onNo,
+}: {
+  condensed?: boolean;
+  onYes: () => void;
+  onNo: () => void;
+}) {
   return (
-    <div>
+    <div className={condensed ? "condensed" : undefined}>
       <p className="check">✓ Spot saved for the Rebel 2027 Launch Call</p>
       <h2 className="title">Don't just attend — compete</h2>
       <p className="sub">
@@ -429,6 +439,16 @@ function Offer({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
           font-size: 13px; font-weight: 600; padding: 12px 0 0; cursor: pointer; text-align: center;
         }
         .skip:hover { color: var(--ink); text-decoration: underline; }
+
+        .condensed .check { color: #5fd576; }
+        .condensed .title { color: var(--ivory); }
+        .condensed .sub { color: rgba(255,255,255,0.7); }
+        .condensed .cta {
+          border-radius: 0; font-family: var(--font-display); font-size: 18px;
+          letter-spacing: 0.06em; text-transform: uppercase; padding: 18px;
+        }
+        .condensed .skip { color: rgba(255,255,255,0.6); }
+        .condensed .skip:hover { color: var(--ivory); }
       `}</style>
     </div>
   );
@@ -568,7 +588,15 @@ function GamesDetail({
   );
 }
 
-function SignupForm({ referredBySlug, onDone }: { referredBySlug: string; onDone: (slug: string) => void }) {
+function SignupForm({
+  referredBySlug,
+  condensed = false,
+  onDone,
+}: {
+  referredBySlug: string;
+  condensed?: boolean;
+  onDone: (slug: string) => void;
+}) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -646,8 +674,8 @@ function SignupForm({ referredBySlug, onDone }: { referredBySlug: string; onDone
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2 className="title">Set up your link</h2>
+    <form onSubmit={handleSubmit} className={condensed ? "condensed" : undefined}>
+      {!condensed && <h2 className="title">Set up your link</h2>}
 
       <input
         ref={honeypotRef}
@@ -659,25 +687,35 @@ function SignupForm({ referredBySlug, onDone }: { referredBySlug: string; onDone
       />
 
       <label className="field">
-        <span>Name</span>
-        <input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
+        <span className="fieldLabel">Name</span>
+        <input
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder={condensed ? "FULL NAME" : "Full name"}
+        />
       </label>
       <label className="field">
-        <span>Email</span>
+        <span className="fieldLabel">Email</span>
         <input
           required
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@email.com"
+          placeholder={condensed ? "E-MAIL ADDRESS" : "you@email.com"}
         />
       </label>
       <label className="field">
-        <span>Phone (optional)</span>
-        <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(555) 555-5555" />
+        <span className="fieldLabel">Phone (optional)</span>
+        <input
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder={condensed ? "PHONE #" : "(555) 555-5555"}
+        />
       </label>
       <label className="field">
-        <span>Your link</span>
+        <span className="fieldLabel">Your link</span>
         <div className="slugRow">
           <span className="slugPrefix">www.therebelevent.com/?ref=</span>
           <input
@@ -716,6 +754,37 @@ function SignupForm({ referredBySlug, onDone }: { referredBySlug: string; onDone
           border-radius: 10px; padding: 14px; font-weight: 700; font-size: 16px;
         }
         .cta:disabled { opacity: 0.5; }
+
+        /* Same black-backdrop treatment as the other two condensed steps -
+           these fields had no background override at all, so they were
+           rendering as plain white browser-default pills on black. */
+        form.condensed .fieldLabel {
+          position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+          overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+        }
+        form.condensed .field input {
+          background: transparent; border: 1px solid var(--ivory); border-radius: 0;
+          color: var(--ivory); padding: 18px 16px;
+          font-family: var(--font-display); font-size: 15px; letter-spacing: 0.04em;
+        }
+        form.condensed .field input::placeholder {
+          color: rgba(255,255,255,0.65); font-family: var(--font-display);
+          text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        form.condensed .field input:focus { border-color: var(--rebel-red); }
+        form.condensed .slugRow {
+          border: 1px solid var(--ivory); border-radius: 0; background: transparent;
+        }
+        form.condensed .slugRow:focus-within { border-color: var(--rebel-red); }
+        form.condensed .slugPrefix { color: rgba(255,255,255,0.65); }
+        form.condensed .slugRow input {
+          background: transparent; color: var(--ivory); font-family: var(--font-mono);
+          text-transform: none; padding: 12px 14px 12px 0;
+        }
+        form.condensed .cta {
+          border-radius: 0; font-family: var(--font-display); font-size: 18px;
+          letter-spacing: 0.06em; text-transform: uppercase; padding: 18px;
+        }
       `}</style>
     </form>
   );
@@ -733,20 +802,28 @@ function SlugStatus({ status }: { status: "idle" | "checking" | "available" | "t
   return <span style={{ fontSize: 12, color, fontWeight: 600 }}>{text}</span>;
 }
 
-function SignupSuccess({ newSlug }: { newSlug: string | null }) {
+function SignupSuccess({ newSlug, condensed = false }: { newSlug: string | null; condensed?: boolean }) {
   if (!newSlug) {
     return (
       <div style={{ textAlign: "center" }}>
-        <p style={{ fontFamily: "var(--font-mono)", color: "var(--success)", fontWeight: 700, marginBottom: 4 }}>
+        <p style={{ fontFamily: "var(--font-mono)", color: condensed ? "#5fd576" : "var(--success)", fontWeight: 700, marginBottom: 4 }}>
           ✓ RSVP confirmed
         </p>
-        <h2 style={{ fontFamily: "var(--font-display)", fontSize: 26, textTransform: "uppercase", margin: "0 0 8px" }}>
+        <h2
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: 26,
+            textTransform: "uppercase",
+            margin: "0 0 8px",
+            color: condensed ? "var(--ivory)" : undefined,
+          }}
+        >
           See you there.
         </h2>
-        <p style={{ color: "var(--slate)", fontSize: 15, lineHeight: 1.5 }}>
+        <p style={{ color: condensed ? "rgba(255,255,255,0.7)" : "var(--slate)", fontSize: 15, lineHeight: 1.5 }}>
           We'll be in touch with the details.
         </p>
-        <SaveCalendarLink />
+        <SaveCalendarLink condensed={condensed} />
       </div>
     );
   }
@@ -755,18 +832,27 @@ function SignupSuccess({ newSlug }: { newSlug: string | null }) {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <p style={{ fontFamily: "var(--font-mono)", color: "var(--success)", fontWeight: 700, marginBottom: 4 }}>
+      <p style={{ fontFamily: "var(--font-mono)", color: condensed ? "#5fd576" : "var(--success)", fontWeight: 700, marginBottom: 4 }}>
         ✓ You're in the Rebel Ambassador Games
       </p>
-      <h2 style={{ fontFamily: "var(--font-display)", fontSize: 26, textTransform: "uppercase", margin: "0 0 12px" }}>
+      <h2
+        style={{
+          fontFamily: "var(--font-display)",
+          fontSize: 26,
+          textTransform: "uppercase",
+          margin: "0 0 12px",
+          color: condensed ? "var(--ivory)" : undefined,
+        }}
+      >
         Your link is live
       </h2>
       <div
         style={{
           fontFamily: "var(--font-mono)",
-          background: "var(--ink)",
+          background: condensed ? "rgba(255,255,255,0.08)" : "var(--ink)",
+          border: condensed ? "1px solid var(--ivory)" : undefined,
+          borderRadius: condensed ? 0 : 10,
           color: "var(--amber)",
-          borderRadius: 10,
           padding: "14px 16px",
           fontSize: 16,
           wordBreak: "break-all",
@@ -775,12 +861,12 @@ function SignupSuccess({ newSlug }: { newSlug: string | null }) {
       >
         {link}
       </div>
-      <CopyLinkButton link={link} />
-      <p style={{ color: "var(--slate)", fontSize: 15, lineHeight: 1.5, marginTop: 14 }}>
+      <CopyLinkButton link={link} condensed={condensed} />
+      <p style={{ color: condensed ? "rgba(255,255,255,0.7)" : "var(--slate)", fontSize: 15, lineHeight: 1.5, marginTop: 14 }}>
         Share it anywhere. Every RSVP through your link counts toward your score on the leaderboard.
         Bookmark your link too — visiting it again is also how you check your live count later.
       </p>
-      <SaveCalendarLink />
+      <SaveCalendarLink condensed={condensed} />
     </div>
   );
 }
@@ -790,7 +876,7 @@ function SignupSuccess({ newSlug }: { newSlug: string | null }) {
 // who lands here already has an RSVP on file, same as the decliners who get
 // routed straight to /save. This is the one place ambassadors themselves see
 // the prompt, since handleDecline only fires for people who said no.
-function SaveCalendarLink() {
+function SaveCalendarLink({ condensed = false }: { condensed?: boolean }) {
   return (
     <a
       href="/save"
@@ -802,9 +888,9 @@ function SaveCalendarLink() {
         fontWeight: 700,
         letterSpacing: "0.02em",
         textTransform: "uppercase",
-        color: "var(--ink)",
-        border: "1.5px solid var(--line)",
-        borderRadius: 8,
+        color: condensed ? "var(--ivory)" : "var(--ink)",
+        border: condensed ? "1.5px solid var(--ivory)" : "1.5px solid var(--line)",
+        borderRadius: condensed ? 0 : 8,
         padding: "10px 18px",
         textDecoration: "none",
       }}
@@ -837,7 +923,7 @@ function copyToClipboard(text: string): boolean {
   return ok;
 }
 
-function CopyLinkButton({ link }: { link: string }) {
+function CopyLinkButton({ link, condensed = false }: { link: string; condensed?: boolean }) {
   const [status, setStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   async function handleCopy() {
@@ -854,6 +940,7 @@ function CopyLinkButton({ link }: { link: string }) {
   }
 
   const label = status === "copied" ? "Copied ✓" : status === "failed" ? "Couldn't copy — select above" : "Copy link";
+  const idleBorder = condensed ? "var(--ivory)" : "var(--line)";
 
   return (
     <button
@@ -865,11 +952,11 @@ function CopyLinkButton({ link }: { link: string }) {
         letterSpacing: "0.02em",
         textTransform: "uppercase",
         padding: "9px 18px",
-        borderRadius: 8,
+        borderRadius: condensed ? 0 : 8,
         border: "1.5px solid var(--line)",
         background: status === "copied" ? "var(--success)" : status === "failed" ? "var(--rebel-red)" : "transparent",
-        color: status === "idle" ? "var(--ink)" : "#fff",
-        borderColor: status === "copied" ? "var(--success)" : status === "failed" ? "var(--rebel-red)" : "var(--line)",
+        color: status === "idle" ? (condensed ? "var(--ivory)" : "var(--ink)") : "#fff",
+        borderColor: status === "copied" ? "var(--success)" : status === "failed" ? "var(--rebel-red)" : idleBorder,
         transition: "all 0.15s ease",
       }}
     >
