@@ -196,10 +196,10 @@ export default function LeaderboardClient() {
         .headerActions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
         .actionBtn {
           font-family: var(--font-mono); font-size: 12px; font-weight: 700; text-transform: uppercase;
-          letter-spacing: 0.03em; padding: 9px 16px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.25);
+          letter-spacing: 0.03em; padding: 9px 16px; border-radius: 0; border: 1px solid rgba(255,255,255,0.4);
           color: var(--ivory); text-decoration: none; white-space: nowrap;
         }
-        .actionBtn:hover { border-color: var(--amber); color: var(--amber); }
+        .actionBtn:hover { border-color: var(--rebel-red); color: var(--rebel-red); }
         .empty { color: rgba(255,255,255,0.6); font-family: var(--font-mono); }
         .countdown { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 28px; }
         .countdownLabel {
@@ -209,7 +209,7 @@ export default function LeaderboardClient() {
         .countdownRow { display: flex; gap: 10px; }
         .countdownUnit {
           display: flex; flex-direction: column; align-items: center; gap: 4px;
-          background: var(--ink-soft); border: 1.5px solid var(--amber); border-radius: 10px;
+          background: transparent; border: 1px solid var(--amber); border-radius: 0;
           padding: 10px 12px; min-width: 56px;
         }
         .countdownNum {
@@ -239,7 +239,7 @@ export default function LeaderboardClient() {
         /* #1 — exaggerated, full-width */
         .hero {
           display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px;
-          background: var(--ink-soft); border: 2px solid var(--rebel-red); border-radius: 14px;
+          background: transparent; border: 1px solid var(--rebel-red); border-radius: 0;
           padding: 22px 26px;
         }
         .heroRank {
@@ -256,7 +256,7 @@ export default function LeaderboardClient() {
         .podiumCard {
           flex: 1; min-width: 0;
           display: flex; flex-direction: column; gap: 4px;
-          background: var(--ink-soft); border: 2px solid var(--rebel-red); border-radius: 12px;
+          background: transparent; border: 1px solid var(--rebel-red); border-radius: 0;
           padding: 16px 18px;
         }
         .podiumRank {
@@ -272,8 +272,8 @@ export default function LeaderboardClient() {
         .board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
         .row {
           display: grid; grid-template-columns: 40px 1fr auto; align-items: center;
-          background: var(--ink-soft); border-radius: 10px; padding: 14px 18px;
-          border: 1.5px solid transparent;
+          background: transparent; border-radius: 0; padding: 14px 18px;
+          border: 1px solid transparent;
         }
         .tier-purple { border-color: var(--amber); }
         .tier-white { border-color: var(--ivory); }
