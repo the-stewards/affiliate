@@ -233,7 +233,9 @@ function RsvpForm({
           <div className="headcountPill">
             <span className="pulse" />
             <span className="headcountNum">{displayCount.toLocaleString()}</span>
-            <span className="headcountLabel">are coming to Rebel Event 2027: The Reveal &mdash; LIVE</span>
+            <span className="headcountLabel">
+              {condensed ? "are coming to the reveal" : "are coming to Rebel Event 2027: The Reveal — LIVE"}
+            </span>
           </div>
         </div>
       )}
@@ -387,6 +389,10 @@ function RsvpForm({
           border-radius: 0; padding: 18px; font-family: var(--font-display);
           font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase;
         }
+        form.condensed .headcountPill {
+          background: transparent; border: 1.5px solid var(--ivory); border-radius: 4px;
+        }
+        form.condensed .headcountLabel { color: var(--ivory); white-space: nowrap; }
       `}</style>
     </form>
   );
