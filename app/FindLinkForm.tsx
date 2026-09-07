@@ -77,16 +77,18 @@ export default function FindLinkForm() {
 
         <style>{`
           .findLink { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 8px; }
-          .found { font-family: var(--font-mono); color: var(--success); font-weight: 700; font-size: 14px; margin: 0; }
+          .found { font-family: var(--font-mono); color: #5fd576; font-weight: 700; font-size: 14px; margin: 0; }
           .linkBox {
             font-family: var(--font-mono); background: rgba(255,255,255,0.08); color: var(--amber);
-            border-radius: 10px; padding: 12px 16px; font-size: 15px; word-break: break-all; width: 100%; max-width: 340px;
+            border: 1px solid var(--ivory); border-radius: 0; padding: 12px 16px; font-size: 15px;
+            word-break: break-all; width: 100%; max-width: 340px;
           }
           .copyBtn {
-            font-family: var(--font-mono); font-weight: 700; font-size: 12px; letter-spacing: 0.02em;
-            text-transform: uppercase; padding: 9px 18px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.3);
+            font-family: var(--font-display); font-size: 14px; letter-spacing: 0.04em;
+            text-transform: uppercase; padding: 10px 18px; border-radius: 0; border: 1px solid var(--ivory);
             background: transparent; color: var(--ivory); cursor: pointer;
           }
+          .copyBtn:hover { border-color: var(--rebel-red); color: var(--rebel-red); }
         `}</style>
       </div>
     );
@@ -120,16 +122,17 @@ export default function FindLinkForm() {
         .findLink { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 8px; width: 100%; max-width: 320px; }
         .emailInput {
           width: 100%; font-family: var(--font-body); font-size: 15px; padding: 12px 14px;
-          border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05);
+          border-radius: 0; border: 1px solid var(--ivory); background: transparent;
           color: var(--ivory);
         }
         .emailInput::placeholder { color: rgba(255,255,255,0.4); }
-        .emailInput:focus { outline: 2px solid var(--amber); outline-offset: 1px; }
+        .emailInput:focus { outline: none; border-color: var(--rebel-red); }
         .submitBtn {
-          font-family: var(--font-mono); font-weight: 700; font-size: 13px; letter-spacing: 0.02em;
-          text-transform: uppercase; padding: 11px 22px; border-radius: 10px; border: none;
-          background: var(--amber); color: var(--ink); cursor: pointer; width: 100%;
+          font-family: var(--font-display); font-size: 16px; letter-spacing: 0.05em;
+          text-transform: uppercase; padding: 14px 22px; border-radius: 0; border: none;
+          background: var(--rebel-red); color: #fff; cursor: pointer; width: 100%;
         }
+        .submitBtn:hover:not(:disabled) { filter: brightness(1.08); }
         .submitBtn:disabled { opacity: 0.6; cursor: default; }
         .findError { font-family: var(--font-mono); color: var(--rebel-red); font-size: 13px; margin: 0; }
       `}</style>
