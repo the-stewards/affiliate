@@ -104,7 +104,7 @@ export default function RsvpFlow({
   }
 
   return (
-    <div className="card">
+    <div className={condensed ? "card condensed" : "card"}>
       {step === "rsvp" && (
         <RsvpForm
           affiliateSlug={affiliateSlug}
@@ -147,6 +147,16 @@ export default function RsvpFlow({
         }
         @media (max-width: 480px) {
           .card { padding: 22px 18px; }
+        }
+        /* Nothing but the individual field/button boxes should read as a
+           shape here - no card outline, no fill - so it sits directly on
+           whatever page hosts the embed (built for the black Squarespace
+           Reveal page, hence the white borders below). */
+        .card.condensed {
+          background: transparent;
+          border: none;
+          border-radius: 0;
+          padding: 0;
         }
       `}</style>
     </div>
@@ -216,7 +226,7 @@ function RsvpForm({
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className={condensed ? "condensed" : undefined}>
       {!condensed && <h2 className="title">Save your seat</h2>}
       {typeof totalRsvpCount === "number" && totalRsvpCount > 0 && (
         <div className="headcountRow">
@@ -249,11 +259,21 @@ function RsvpForm({
       <div className="nameRow">
         <label className="field">
           <span>First name</span>
-          <input required value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="First" />
+          <input
+            required
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            placeholder={condensed ? "FIRST NAME" : "First"}
+          />
         </label>
         <label className="field">
           <span>Last name</span>
-          <input required value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Last" />
+          <input
+            required
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder={condensed ? "LAST NAME" : "Last"}
+          />
         </label>
       </div>
       <label className="field">
@@ -263,7 +283,7 @@ function RsvpForm({
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@email.com"
+          placeholder={condensed ? "E-MAIL ADDRESS" : "you@email.com"}
         />
       </label>
       <label className="field">
@@ -272,7 +292,7 @@ function RsvpForm({
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          placeholder="(555) 555-5555"
+          placeholder={condensed ? "PHONE #" : "(555) 555-5555"}
         />
       </label>
 
@@ -342,6 +362,31 @@ function RsvpForm({
         }
         .cta:hover:not(:disabled) { filter: brightness(1.08); }
         .cta:disabled { opacity: 0.6; cursor: default; }
+
+        /* Built for a black backdrop (the Squarespace Reveal page) - square
+           corners, bold white-bordered fields with no fill, uppercase
+           display-font placeholders carrying the label instead of a
+           separate label line above each field. */
+        form.condensed .field span {
+          position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+          overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+        }
+        form.condensed .field input {
+          background: transparent; border: 2px solid var(--ivory); border-radius: 0;
+          color: var(--ivory); padding: 18px 16px;
+          font-family: var(--font-display); font-size: 15px; letter-spacing: 0.04em;
+          text-transform: uppercase;
+        }
+        form.condensed .field input::placeholder {
+          color: rgba(255,255,255,0.65); font-family: var(--font-display);
+          text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        form.condensed .field input:focus { border-color: var(--rebel-red); }
+        form.condensed .checkboxField { color: rgba(255,255,255,0.7); }
+        form.condensed .cta {
+          border-radius: 0; padding: 18px; font-family: var(--font-display);
+          font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase;
+        }
       `}</style>
     </form>
   );
