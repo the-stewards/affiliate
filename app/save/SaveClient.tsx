@@ -1,5 +1,33 @@
 "use client";
 
+import { useEffect } from "react";
+
+// This page is iframed on the Squarespace site with a fixed iframe height,
+// so any height change here (font loading, text reflow, a future edit)
+// otherwise just gets clipped with an internal scrollbar. Posts the actual
+// content height to the parent frame so it can resize the iframe to match -
+// see public/save-iframe-resize-listener.html for the paired script that
+// belongs in the Squarespace embed.
+function useIframeAutoResize() {
+  useEffect(() => {
+    if (window.parent === window) return;
+
+    function postHeight() {
+      window.parent.postMessage(
+        { type: "rebel-embed-resize", height: document.documentElement.scrollHeight },
+        "*"
+      );
+    }
+
+    postHeight();
+    const observer = new ResizeObserver(postHeight);
+    observer.observe(document.documentElement);
+    document.fonts?.ready.then(postHeight).catch(() => {});
+
+    return () => observer.disconnect();
+  }, []);
+}
+
 const GOOGLE_URL =
   "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Rebel%20Event%202027%3A%20The%20Reveal%20%E2%80%94%20Live%20on%20YouTube&dates=20261021T160000Z/20261021T170000Z&details=Rebel%20is%20coming%20back.%20But%20almost%20everything%20else%20is%20changing.%0A%0AJoin%20us%20live%20as%20we%20reveal%20the%20Rebel%202027%20dates%2C%20unveil%20our%20new%20venue%2C%20announce%20this%20year's%20speaker%20lineup%2C%20and%20give%20you%20the%20first%20look%20at%20what%20we're%20building%20for%20the%20next%20Rebel%20experience.%0A%0AAnd%20if%20you%20already%20know%20you%20want%20to%20be%20in%20the%20room%2C%20you'll%20want%20to%20watch%20live.%0A%0AVIP%20tickets%20are%20extremely%20limited%2C%20first%20come%2C%20first%20served%2C%20and%20those%20watching%20The%20Reveal%20will%20be%20the%20first%20to%20get%20access.%0A%0ANew%20dates.%20New%20venue.%20New%20speakers.%20A%20bigger%20Rebel.%0A%0AWe've%20been%20building%20this%20since%20we%20stepped%20off%20stage%20last%20year.%0A%0ANow%20it's%20time%20to%20show%20you.%0A%0AWatch%20live%3A%20https%3A%2F%2Fwww.youtube.com%2Flive%2FfyzxZiC-XLg&location=https%3A%2F%2Fwww.youtube.com%2Flive%2FfyzxZiC-XLg";
 
@@ -30,6 +58,8 @@ function copyToClipboard(text: string): boolean {
 }
 
 export default function SaveClient() {
+  useIframeAutoResize();
+
   return (
     <main className="wrap">
       <div className="header">

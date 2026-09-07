@@ -1,0 +1,25 @@
+<!--
+  Rebel — /save iframe auto-resize listener
+
+  Pairs with the postMessage sender in app/save/SaveClient.tsx
+  (useIframeAutoResize). That page posts its real content height to its
+  parent frame on load, on any size change, and once fonts finish loading.
+  This listener is what turns those messages into an actual height change
+  on the iframe - without it, the iframe just keeps whatever fixed height
+  it was given and clips/scrolls internally.
+
+  WHERE THIS GOES: paste the <script> block below into the same
+  Squarespace code block that holds the iframe pointing at
+  https://join.therebelevent.com/save (or into that page's header code
+  injection, Settings > Advanced > Code Injection). It only needs to run
+  once per page.
+-->
+<script>
+  window.addEventListener("message", function (event) {
+    if (!event.data || event.data.type !== "rebel-embed-resize") return;
+    var iframe = document.querySelector('iframe[src*="join.therebelevent.com/save"]');
+    if (iframe && typeof event.data.height === "number") {
+      iframe.style.height = event.data.height + "px";
+    }
+  });
+</script>
