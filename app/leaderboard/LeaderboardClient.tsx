@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const MEDIA_FOLDER_URL = "https://drive.google.com/drive/folders/1k78aMD7hrJDLvDu7LcXk39X6vIH_s_6B?usp=drive_link";
 
@@ -44,11 +44,52 @@ function useCountdown(target: number) {
   return { ready: true, isOver: now >= target, days, hours, minutes, seconds };
 }
 
+// Background sits in a fixed layer, oversized by 10vh top and bottom, and
+// nudges up to that much in the opposite direction of scroll - the classic
+// "background moves slower than content" illusion, without needing the
+// source art itself to be any taller than one screen. Mutates the layer's
+// transform directly (rather than React state) and throttles to one write
+// per animation frame, since this fires on every scroll event and a
+// re-render per pixel scrolled would be wasteful. Skipped entirely under
+// prefers-reduced-motion, same as the RSVP headcount's count-up animation.
+function useParallaxBackground() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const SLACK_VH = 10;
+    let ticking = false;
+
+    function apply() {
+      ticking = false;
+      const el = ref.current;
+      if (!el) return;
+      const slackPx = window.innerHeight * (SLACK_VH / 100);
+      const offset = Math.max(-slackPx, Math.min(slackPx, window.scrollY * -0.15));
+      el.style.transform = `translateY(${offset}px)`;
+    }
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(apply);
+    }
+
+    apply();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return ref;
+}
+
 export default function LeaderboardClient() {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
   const { isOver, days, hours, minutes, seconds } = useCountdown(GAMES_END_UTC);
+  const bgRef = useParallaxBackground();
 
   async function load() {
     try {
@@ -69,6 +110,7 @@ export default function LeaderboardClient() {
 
   return (
     <main className="wrap">
+      <div ref={bgRef} className="parallaxBg" />
       <div className="header">
         <span className="eyebrow">The Rebel Games 2027</span>
         <h1 className="title">Leaderboard</h1>
@@ -76,10 +118,10 @@ export default function LeaderboardClient() {
           <span className="updated">Updated {updatedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
         )}
         <div className="headerActions">
-          <Link href="/" className="actionBtn">
+          <Link href="/" className="actionBtn actionBtn--secondary">
             Lost your link?
           </Link>
-          <a href={MEDIA_FOLDER_URL} target="_blank" rel="noopener noreferrer" className="actionBtn">
+          <a href={MEDIA_FOLDER_URL} target="_blank" rel="noopener noreferrer" className="actionBtn actionBtn--primary">
             Download media kit
           </a>
         </div>
@@ -175,33 +217,58 @@ export default function LeaderboardClient() {
 
       <style>{`
         .wrap {
+          position: relative;
           min-height: 100dvh;
           background: var(--ink);
           color: var(--ivory);
-          padding: 48px 20px 80px;
+          padding: 32px 20px 48px;
           display: flex;
           flex-direction: column;
           align-items: center;
+          overflow-x: clip;
         }
-        .header { text-align: center; margin-bottom: 28px; }
+        /* Fixed and oversized by 10vh top/bottom (see useParallaxBackground)
+           so nudging it via transform on scroll never reveals empty space
+           at the edges - background-size: cover crops the source art to
+           fill this box regardless of its own aspect ratio. Mobile image
+           is the default (mobile-first); desktop swaps in at the
+           breakpoint below. */
+        .parallaxBg {
+          position: fixed; top: -10vh; left: 0; right: 0; height: 120vh;
+          background-image: url(/leaderboard-bg-mobile.png);
+          background-size: cover; background-position: center;
+          z-index: 0; pointer-events: none;
+        }
+        @media (min-width: 768px) {
+          .parallaxBg { background-image: url(/leaderboard-bg-desktop.png); }
+        }
+        .header, .countdown, .lists, .empty { position: relative; z-index: 1; }
+        .header { text-align: center; margin-bottom: 20px; }
         .eyebrow {
-          font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.12em;
+          font-family: var(--font-mono); font-size: 14px; font-weight: 700; letter-spacing: 0.16em;
           text-transform: uppercase; color: var(--amber);
         }
         .title {
-          font-family: var(--font-display); font-size: clamp(36px, 9vw, 56px);
+          font-family: var(--font-display); font-size: clamp(42px, 11vw, 68px);
           text-transform: uppercase; margin: 6px 0 4px;
+          text-shadow: 3px 3px 0 rgba(0,0,0,0.85), 0 0 32px rgba(255,69,0,0.25);
         }
         .updated { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.5); }
-        .headerActions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+        .headerActions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
         .actionBtn {
-          font-family: var(--font-mono); font-size: 12px; font-weight: 700; text-transform: uppercase;
-          letter-spacing: 0.03em; padding: 9px 16px; border-radius: 0; border: 1px solid rgba(255,255,255,0.4);
-          color: var(--ivory); text-decoration: none; white-space: nowrap;
+          flex: 1 1 190px; text-align: center;
+          font-family: var(--font-display); font-size: 15px; letter-spacing: 0.04em;
+          text-transform: uppercase; padding: 16px 20px; border-radius: 0;
+          text-decoration: none; white-space: nowrap; transition: filter 0.15s ease, border-color 0.15s ease, color 0.15s ease;
         }
-        .actionBtn:hover { border-color: var(--rebel-red); color: var(--rebel-red); }
+        .actionBtn--secondary {
+          background: rgba(0,0,0,0.35); border: 1px solid var(--ivory); color: var(--ivory);
+        }
+        .actionBtn--secondary:hover { border-color: var(--rebel-red); color: var(--rebel-red); }
+        .actionBtn--primary { background: var(--rebel-red); border: 1px solid var(--rebel-red); color: #fff; }
+        .actionBtn--primary:hover { filter: brightness(1.1); }
         .empty { color: rgba(255,255,255,0.6); font-family: var(--font-mono); }
-        .countdown { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 28px; }
+        .countdown { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; }
         .countdownLabel {
           font-family: var(--font-mono); font-size: 12px; text-transform: uppercase;
           letter-spacing: 0.06em; color: rgba(255,255,255,0.6); margin: 0;
@@ -209,8 +276,8 @@ export default function LeaderboardClient() {
         .countdownRow { display: flex; gap: 10px; }
         .countdownUnit {
           display: flex; flex-direction: column; align-items: center; gap: 4px;
-          background: transparent; border: 1px solid var(--amber); border-radius: 0;
-          padding: 10px 12px; min-width: 56px;
+          background: rgba(0,0,0,0.45); border: 1px solid var(--amber); border-radius: 0;
+          padding: 8px 12px; min-width: 56px;
         }
         .countdownNum {
           font-family: var(--font-mono); font-weight: 700; font-size: clamp(20px, 5vw, 26px);
@@ -226,12 +293,12 @@ export default function LeaderboardClient() {
         }
         .lists {
           width: 100%; max-width: 560px;
-          display: flex; flex-direction: column; gap: 10px;
+          display: flex; flex-direction: column; gap: 8px;
         }
 
         .tierLabel {
           font-family: var(--font-mono); font-size: 11px; font-weight: 700; text-transform: uppercase;
-          letter-spacing: 0.06em; margin: 4px 2px 2px;
+          letter-spacing: 0.06em; margin: 2px 2px 1px;
         }
         .tierLabel-red { color: var(--rebel-red); }
         .tierLabel-purple { color: var(--amber); }
@@ -239,40 +306,40 @@ export default function LeaderboardClient() {
         /* #1 — exaggerated, full-width */
         .hero {
           display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px;
-          background: transparent; border: 1px solid var(--rebel-red); border-radius: 0;
-          padding: 22px 26px;
+          background: rgba(0,0,0,0.45); border: 1px solid var(--rebel-red); border-radius: 0;
+          padding: 16px 20px;
         }
         .heroRank {
-          font-family: var(--font-mono); font-weight: 700; color: var(--rebel-red); font-size: 22px;
+          font-family: var(--font-mono); font-weight: 700; color: var(--rebel-red); font-size: 20px;
         }
-        .heroName { font-weight: 700; font-size: clamp(20px, 5vw, 26px); }
+        .heroName { font-weight: 700; font-size: clamp(18px, 4.5vw, 24px); }
         .heroCount {
-          font-family: var(--font-mono); font-weight: 700; font-size: clamp(28px, 7vw, 36px);
+          font-family: var(--font-mono); font-weight: 700; font-size: clamp(24px, 6vw, 30px);
           color: var(--rebel-red); font-variant-numeric: tabular-nums;
         }
 
         /* #2 and #3 — exaggerated, 50/50 split */
-        .podiumRow { display: flex; gap: 10px; }
+        .podiumRow { display: flex; gap: 8px; }
         .podiumCard {
           flex: 1; min-width: 0;
-          display: flex; flex-direction: column; gap: 4px;
-          background: transparent; border: 1px solid var(--rebel-red); border-radius: 0;
-          padding: 16px 18px;
+          display: flex; flex-direction: column; gap: 3px;
+          background: rgba(0,0,0,0.45); border: 1px solid var(--rebel-red); border-radius: 0;
+          padding: 12px 14px;
         }
         .podiumRank {
-          font-family: var(--font-mono); font-weight: 700; color: var(--rebel-red); font-size: 17px;
+          font-family: var(--font-mono); font-weight: 700; color: var(--rebel-red); font-size: 16px;
         }
-        .podiumName { font-weight: 600; font-size: 17px; }
+        .podiumName { font-weight: 600; font-size: 16px; }
         .podiumCount {
-          font-family: var(--font-mono); font-weight: 700; font-size: 24px; color: var(--rebel-red);
+          font-family: var(--font-mono); font-weight: 700; font-size: 21px; color: var(--rebel-red);
           font-variant-numeric: tabular-nums;
         }
 
         /* #4+ — standard rows, tiered trim color */
-        .board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+        .board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
         .row {
           display: grid; grid-template-columns: 40px 1fr auto; align-items: center;
-          background: transparent; border-radius: 0; padding: 14px 18px;
+          background: rgba(0,0,0,0.4); border-radius: 0; padding: 10px 14px;
           border: 1px solid transparent;
         }
         .tier-purple { border-color: var(--amber); }
@@ -284,12 +351,12 @@ export default function LeaderboardClient() {
         .tier-white .rank, .tier-white .count { color: var(--ivory); }
         .divider {
           text-align: center; color: var(--ivory); font-family: var(--font-mono);
-          font-size: 12px; letter-spacing: 0.02em; padding: 14px 8px 4px;
-          border-top: 1px solid rgba(255,255,255,0.15); margin-top: 4px;
+          font-size: 12px; letter-spacing: 0.02em; padding: 10px 8px 2px;
+          border-top: 1px solid rgba(255,255,255,0.15); margin-top: 2px;
         }
-        .name { font-weight: 600; font-size: 16px; }
+        .name { font-weight: 600; font-size: 15px; }
         .count {
-          font-family: var(--font-mono); font-weight: 700; font-size: 20px;
+          font-family: var(--font-mono); font-weight: 700; font-size: 18px;
           font-variant-numeric: tabular-nums;
         }
       `}</style>
