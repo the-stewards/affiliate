@@ -44,14 +44,19 @@ function useCountdown(target: number) {
   return { ready: true, isOver: now >= target, days, hours, minutes, seconds };
 }
 
-// Background sits in a fixed layer, oversized by 10vh top and bottom, and
-// nudges up to that much in the opposite direction of scroll - the classic
-// "background moves slower than content" illusion, without needing the
-// source art itself to be any taller than one screen. Mutates the layer's
-// transform directly (rather than React state) and throttles to one write
-// per animation frame, since this fires on every scroll event and a
-// re-render per pixel scrolled would be wasteful. Skipped entirely under
-// prefers-reduced-motion, same as the RSVP headcount's count-up animation.
+// Background sits in a fixed layer and nudges upward as the page scrolls
+// down - the classic "background moves slower than content" illusion,
+// without needing the source art itself to be any taller than one screen.
+// scrollY is never negative, so the layer only ever needs to move up, never
+// down - it is oversized by 10vh at the BOTTOM only (see .parallaxBg's
+// height/top in the style block) to supply that slack; giving it slack at
+// the top too (an earlier version did) permanently crops that much off the
+// art's actual top edge, since the layer would never sit low enough to
+// reveal it. Mutates the layer's transform directly (rather than React
+// state) and throttles to one write per animation frame, since this fires
+// on every scroll event and a re-render per pixel scrolled would be
+// wasteful. Skipped entirely under prefers-reduced-motion, same as the RSVP
+// headcount's count-up animation.
 function useParallaxBackground() {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -227,16 +232,19 @@ export default function LeaderboardClient() {
           align-items: center;
           overflow-x: clip;
         }
-        /* Fixed and oversized by 10vh top/bottom (see useParallaxBackground)
-           so nudging it via transform on scroll never reveals empty space
-           at the edges - background-size: cover crops the source art to
-           fill this box regardless of its own aspect ratio. Mobile image
-           is the default (mobile-first); desktop swaps in at the
-           breakpoint below. */
+        /* Oversized by 10vh at the bottom only, flush with the viewport at
+           the top (see useParallaxBackground - the layer only ever moves
+           up, never down, so slack is only needed below) so nudging it via
+           transform on scroll never reveals empty space at the bottom
+           edge. background-position: top keeps the top edge of the art
+           flush with the top of the page at rest, instead of the default
+           center crop that cover would otherwise use, eating into it.
+           Mobile image is the default (mobile-first); desktop swaps in at
+           the breakpoint below. */
         .parallaxBg {
-          position: fixed; top: -10vh; left: 0; right: 0; height: 120vh;
+          position: fixed; top: 0; left: 0; right: 0; height: 110vh;
           background-image: url(/leaderboard-bg-mobile.png);
-          background-size: cover; background-position: center;
+          background-size: cover; background-position: top center;
           z-index: 0; pointer-events: none;
         }
         @media (min-width: 768px) {
@@ -292,7 +300,7 @@ export default function LeaderboardClient() {
           letter-spacing: 0.04em; color: var(--rebel-red); margin: 0;
         }
         .lists {
-          width: 100%; max-width: 560px;
+          width: 100%; max-width: 420px;
           display: flex; flex-direction: column; gap: 8px;
         }
 
