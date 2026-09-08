@@ -7,13 +7,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Save to Your Calendar — Rebel Event 2027: The Reveal",
     description: "Save Rebel Event 2027: The Reveal to your calendar — live on YouTube, Oct 21, 2026.",
-    images: ["/save-og.png"],
+    images: ["/save-og.jpg"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Save to Your Calendar — Rebel Event 2027: The Reveal",
     description: "Save Rebel Event 2027: The Reveal to your calendar — live on YouTube, Oct 21, 2026.",
-    images: ["/save-og.png"],
+    images: ["/save-og.jpg"],
   },
 };
 
