@@ -12,7 +12,18 @@ export async function middleware(req: NextRequest) {
     return new NextResponse("Admin access not configured.", { status: 503 });
   }
 
-  const expected = "Basic " + btoa(`${user}:${pass}`);
+  let expected: string;
+  try {
+    expected = "Basic " + btoa(`${user}:${pass}`);
+  } catch {
+    // btoa() throws if ADMIN_USER/ADMIN_PASSWORD contain any non-Latin1
+    // character (a curly quote, an em dash, an emoji - anything pasted in
+    // rather than typed). Left unguarded, this crashes the edge function on
+    // every single request, taking /admin down for everyone including
+    // whoever has the right credentials - same fallback as the "env var
+    // missing entirely" case above, since both mean auth can't be evaluated.
+    return new NextResponse("Admin access not configured.", { status: 503 });
+  }
   if (req.headers.get("authorization") === expected) {
     return NextResponse.next();
   }
@@ -21,8 +32,17 @@ export async function middleware(req: NextRequest) {
   // resending valid cached credentials on every request) never gets
   // throttled - only actual password guessing does.
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (await isRateLimited(`admin-auth:${ip}`, 10, 15 * 60 * 1000)) {
-    return new NextResponse("Too many failed attempts. Try again later.", { status: 429 });
+  try {
+    if (await isRateLimited(`admin-auth:${ip}`, 10, 15 * 60 * 1000)) {
+      return new NextResponse("Too many failed attempts. Try again later.", { status: 429 });
+    }
+  } catch (err) {
+    // isRateLimited hits Postgres - a missing DATABASE_URL in this runtime's
+    // env scope, or a Neon connectivity hiccup, throws here. Fail open on
+    // the rate-limit check only (not on auth itself, which is checked
+    // above and unaffected) so a rate-limit-store outage can't crash the
+    // whole login prompt for everyone.
+    console.error("admin rate-limit check failed, failing open:", err);
   }
 
   return new NextResponse("Authentication required.", {
