@@ -25,7 +25,11 @@ export default function FindLinkForm() {
   const [website, setWebsite] = useState(""); // honeypot
   const [status, setStatus] = useState<"idle" | "loading">("idle");
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ slug: string; displayName: string } | null>(null);
+  const [result, setResult] = useState<{
+    slug: string;
+    displayName: string;
+    signups: { firstName: string; lastName: string; createdAt: string }[];
+  } | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   async function handleSubmit(e: React.FormEvent) {
@@ -43,7 +47,7 @@ export default function FindLinkForm() {
         setError(data.error || "Something went wrong. Try again.");
         setResult(null);
       } else {
-        setResult({ slug: data.slug, displayName: data.displayName });
+        setResult({ slug: data.slug, displayName: data.displayName, signups: data.signups || [] });
       }
     } catch {
       setError("Couldn't reach the server — check your connection and try again.");
@@ -75,6 +79,28 @@ export default function FindLinkForm() {
           {copyStatus === "copied" ? "Copied ✓" : copyStatus === "failed" ? "Couldn't copy — select above" : "Copy link"}
         </button>
 
+        <div className="signups">
+          <p className="signupsTitle">
+            Your sign-ups {result.signups.length > 0 ? `(${result.signups.length})` : ""}
+          </p>
+          {result.signups.length === 0 ? (
+            <p className="signupsEmpty">No sign-ups yet — share your link to get on the board.</p>
+          ) : (
+            <ul className="signupsList">
+              {result.signups.map((s, i) => (
+                <li key={i}>
+                  <span className="signupName">
+                    {s.firstName} {s.lastName}
+                  </span>
+                  <span className="signupDate">
+                    {new Date(s.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         <style>{`
           .findLink { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 8px; }
           .found { font-family: var(--font-mono); color: #5fd576; font-weight: 700; font-size: 14px; margin: 0; }
@@ -89,6 +115,19 @@ export default function FindLinkForm() {
             background: transparent; color: var(--ivory); cursor: pointer;
           }
           .copyBtn:hover { border-color: var(--rebel-red); color: var(--rebel-red); }
+          .signups { width: 100%; max-width: 340px; margin-top: 18px; text-align: left; }
+          .signupsTitle {
+            font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+            color: rgba(255,255,255,0.5); margin: 0 0 8px;
+          }
+          .signupsEmpty { font-size: 13px; color: rgba(255,255,255,0.5); margin: 0; }
+          .signupsList { list-style: none; margin: 0; padding: 0; max-height: 240px; overflow-y: auto; }
+          .signupsList li {
+            display: flex; justify-content: space-between; gap: 12px; padding: 9px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px;
+          }
+          .signupName { color: var(--ivory); }
+          .signupDate { font-family: var(--font-mono); color: rgba(255,255,255,0.4); font-size: 12px; white-space: nowrap; }
         `}</style>
       </div>
     );

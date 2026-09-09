@@ -39,5 +39,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No ambassador found with that email." }, { status: 404 });
   }
 
-  return NextResponse.json({ ok: true, slug: affiliate.slug, displayName: affiliate.display_name });
+  // Name + date only, never email/phone - this lookup is authenticated by
+  // knowing the affiliate's own signup email, not by anything tying the
+  // requester to the RSVPs themselves, so it shouldn't expose contact info
+  // that let someone reach an attendee directly.
+  const signups = await sql`
+    select r.first_name, r.last_name, r.created_at
+    from rsvps r
+    join affiliates a on a.id = r.affiliate_id
+    where lower(a.slug) = ${affiliate.slug.toLowerCase()}
+    order by r.created_at desc
+  `;
+
+  return NextResponse.json({
+    ok: true,
+    slug: affiliate.slug,
+    displayName: affiliate.display_name,
+    signups: signups.map((s) => ({
+      firstName: s.first_name,
+      lastName: s.last_name,
+      createdAt: s.created_at,
+    })),
+  });
 }
