@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 // one) - e.g. someone visits the Squarespace hub page directly rather than
 // through a specific affiliate's share. Keeps every RSVP attributable
 // instead of erroring out.
-const FALLBACK_SLUG = process.env.EMBED_FALLBACK_SLUG || "nick";
+const FALLBACK_SLUG = process.env.EMBED_FALLBACK_SLUG || "rebel";
 
 async function getAffiliate(slug: string) {
   const rows = await sql`

@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // wherever it's already in use. Same ?ref= attribution mechanism as the
 // original: the parent Squarespace page reads its own URL's ?ref= and
 // passes it through to this iframe's src.
-const FALLBACK_SLUG = process.env.EMBED_FALLBACK_SLUG || "nick";
+const FALLBACK_SLUG = process.env.EMBED_FALLBACK_SLUG || "rebel";
 
 async function getAffiliate(slug: string) {
   const rows = await sql`
