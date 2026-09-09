@@ -296,7 +296,7 @@ export default function LeaderboardClient() {
         .countdownRow { display: flex; gap: 10px; }
         .countdownUnit {
           display: flex; flex-direction: column; align-items: center; gap: 4px;
-          background: rgba(0,0,0,0.45); border: 1px solid var(--amber); border-radius: 0;
+          background: rgba(0,0,0,0.7); border: 1px solid var(--amber); border-radius: 0;
           padding: 8px 12px; min-width: 56px;
         }
         .countdownNum {
@@ -328,7 +328,7 @@ export default function LeaderboardClient() {
            for mobile only, between the ambassador name and their count. */
         .hero {
           display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px;
-          background: rgba(0,0,0,0.45); border: 1px solid var(--rebel-red); border-radius: 0;
+          background: rgba(0,0,0,0.7); border: 1px solid var(--rebel-red); border-radius: 0;
           padding: 16px 20px;
         }
         @media (min-width: 768px) {
@@ -348,7 +348,7 @@ export default function LeaderboardClient() {
         .podiumCard {
           flex: 1; min-width: 0;
           display: flex; flex-direction: column; gap: 3px;
-          background: rgba(0,0,0,0.45); border: 1px solid var(--rebel-red); border-radius: 0;
+          background: rgba(0,0,0,0.7); border: 1px solid var(--rebel-red); border-radius: 0;
           padding: 12px 14px;
         }
         .podiumRank {
@@ -364,7 +364,7 @@ export default function LeaderboardClient() {
         .board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
         .row {
           display: grid; grid-template-columns: 40px 1fr auto; align-items: center;
-          background: rgba(0,0,0,0.4); border-radius: 0; padding: 10px 14px;
+          background: rgba(0,0,0,0.65); border-radius: 0; padding: 10px 14px;
           border: 1px solid transparent;
         }
         .tier-purple { border-color: var(--amber); }
