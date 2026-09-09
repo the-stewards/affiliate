@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
   const [limited, affiliateRows] = await Promise.all([
     // Generous enough that a group RSVPing from the same venue/office wifi
     // (shared IP) won't trip it, while still stopping a scripted flood.
-    isRateLimited(`rsvp:${ip}`, 20, 60 * 60 * 1000),
+    isRateLimited(`rsvp:${ip}`, 200, 60 * 60 * 1000),
     sql`
       select id, slug, display_name, email,
         (select count(*)::int from rsvps r where r.affiliate_id = a.id) as current_count
