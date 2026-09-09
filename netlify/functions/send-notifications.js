@@ -15,6 +15,13 @@
 // never causes a duplicate re-send to a target that already succeeded. If
 // a target's env var isn't set, its column just never gets populated -
 // harmless, the row stops being retried once `attempts` hits 5 either way.
+//
+// The Zapier target is split by event: new_affiliate rows go to their own
+// dedicated Zap (AFFILIATE_ZAPIER_WEBHOOK_URL) instead of the RSVP Zap's
+// webhook (ZAPIER_WEBHOOK_URL). They used to share one URL, which meant
+// every affiliate signup ran through the RSVP Zap's steps - built for
+// rsvp_* fields that do not exist on an affiliate payload - and wrote
+// mismapped rows/contacts into the RSVP sheet and CRM.
 const { neon } = require("@neondatabase/serverless");
 
 async function postJson(url, body, timeoutMs = 8000) {
@@ -34,8 +41,9 @@ async function postJson(url, body, timeoutMs = 8000) {
 
 exports.handler = async () => {
   const zapierUrl = process.env.ZAPIER_WEBHOOK_URL;
+  const affiliateZapierUrl = process.env.AFFILIATE_ZAPIER_WEBHOOK_URL;
   const ghlUrl = process.env.GHL_WEBHOOK_URL;
-  if (!zapierUrl && !ghlUrl) {
+  if (!zapierUrl && !affiliateZapierUrl && !ghlUrl) {
     return { statusCode: 200, body: "No webhook URLs set, nothing to flush." };
   }
 
@@ -61,10 +69,11 @@ exports.handler = async () => {
 
   for (const row of pending) {
     const body = { event: row.event, ...row.payload, timestamp: new Date().toISOString() };
+    const targetZapierUrl = row.event === "new_affiliate" ? affiliateZapierUrl : zapierUrl;
 
-    if (zapierUrl && !row.sent_at) {
+    if (targetZapierUrl && !row.sent_at) {
       try {
-        const res = await postJson(zapierUrl, body);
+        const res = await postJson(targetZapierUrl, body);
         if (res.ok) {
           await sql`update notifications set sent_at = now() where id = ${row.id}`;
           zapierSent++;
