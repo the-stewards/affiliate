@@ -116,6 +116,7 @@ export default function LeaderboardClient() {
   return (
     <main className="wrap">
       <div ref={bgRef} className="parallaxBg" />
+      <img src="/leaderboard-h2h.png" alt="" className="topBadge" width={76} height={76} />
       <div className="header">
         <span className="eyebrow">The Rebel Games 2027</span>
         <h1 className="title">Leaderboard</h1>
@@ -226,11 +227,22 @@ export default function LeaderboardClient() {
           min-height: 100dvh;
           background: var(--ink);
           color: var(--ivory);
-          padding: 32px 20px 48px;
+          padding: 101px 20px 48px;
           display: flex;
           flex-direction: column;
           align-items: center;
           overflow-x: clip;
+        }
+        /* Positioned absolute so it sits flush with the true top of the
+           page regardless of the padding on .wrap above (an absolutely
+           positioned element is offset from the border edge of the nearest
+           positioned ancestor, not the inner padded content area). The top
+           padding on .wrap above is set so the eyebrow text below lands
+           exactly 20px under this badge:
+           5px (badge top) + 76px (badge height) + 20px (gap) = 101px. */
+        .topBadge {
+          position: absolute; top: 5px; left: 50%; transform: translateX(-50%);
+          width: 76px; height: 76px; z-index: 2; pointer-events: none;
         }
         /* Oversized by 10vh at the bottom only, flush with the viewport at
            the top (see useParallaxBackground - the layer only ever moves
@@ -253,19 +265,19 @@ export default function LeaderboardClient() {
         .header, .countdown, .lists, .empty { position: relative; z-index: 1; }
         .header { text-align: center; margin-bottom: 20px; }
         .eyebrow {
-          font-family: var(--font-mono); font-size: 14px; font-weight: 700; letter-spacing: 0.16em;
+          font-family: League Gothic, var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.16em;
           text-transform: uppercase; color: var(--amber);
         }
         .title {
-          font-family: var(--font-display); font-size: clamp(42px, 11vw, 68px);
+          font-family: League Gothic, var(--font-display); font-size: clamp(42px, 11vw, 68px);
           text-transform: uppercase; margin: 6px 0 4px;
           text-shadow: 3px 3px 0 rgba(0,0,0,0.85), 0 0 32px rgba(255,69,0,0.25);
         }
-        .updated { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.5); }
+        .updated { font-family: var(--font-body); font-size: 12px; color: rgba(255,255,255,0.5); }
         .headerActions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
         .actionBtn {
           flex: 1 1 190px; text-align: center;
-          font-family: var(--font-display); font-size: 15px; letter-spacing: 0.04em;
+          font-family: var(--font-body); font-weight: 700; font-size: 15px; letter-spacing: 0.04em;
           text-transform: uppercase; padding: 16px 20px; border-radius: 0;
           text-decoration: none; white-space: nowrap; transition: filter 0.15s ease, border-color 0.15s ease, color 0.15s ease;
         }
@@ -275,10 +287,10 @@ export default function LeaderboardClient() {
         .actionBtn--secondary:hover { border-color: var(--rebel-red); color: var(--rebel-red); }
         .actionBtn--primary { background: var(--rebel-red); border: 1px solid var(--rebel-red); color: #fff; }
         .actionBtn--primary:hover { filter: brightness(1.1); }
-        .empty { color: rgba(255,255,255,0.6); font-family: var(--font-mono); }
+        .empty { color: rgba(255,255,255,0.6); font-family: var(--font-body); }
         .countdown { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; }
         .countdownLabel {
-          font-family: var(--font-mono); font-size: 12px; text-transform: uppercase;
+          font-family: var(--font-body); font-size: 12px; text-transform: uppercase;
           letter-spacing: 0.06em; color: rgba(255,255,255,0.6); margin: 0;
         }
         .countdownRow { display: flex; gap: 10px; }
@@ -288,15 +300,15 @@ export default function LeaderboardClient() {
           padding: 8px 12px; min-width: 56px;
         }
         .countdownNum {
-          font-family: var(--font-mono); font-weight: 700; font-size: clamp(20px, 5vw, 26px);
+          font-family: var(--font-body); font-weight: 700; font-size: clamp(20px, 5vw, 26px);
           color: var(--amber); font-variant-numeric: tabular-nums;
         }
         .countdownUnitLabel {
-          font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+          font-family: var(--font-body); font-size: 10px; text-transform: uppercase;
           letter-spacing: 0.05em; color: rgba(255,255,255,0.5);
         }
         .countdownOver {
-          font-family: var(--font-mono); font-size: 13px; font-weight: 700; text-transform: uppercase;
+          font-family: var(--font-body); font-size: 13px; font-weight: 700; text-transform: uppercase;
           letter-spacing: 0.04em; color: var(--rebel-red); margin: 0;
         }
         .lists {
@@ -305,24 +317,29 @@ export default function LeaderboardClient() {
         }
 
         .tierLabel {
-          font-family: var(--font-mono); font-size: 11px; font-weight: 700; text-transform: uppercase;
+          font-family: var(--font-body); font-size: 11px; font-weight: 700; text-transform: uppercase;
           letter-spacing: 0.06em; margin: 2px 2px 1px;
         }
         .tierLabel-red { color: var(--rebel-red); }
         .tierLabel-purple { color: var(--amber); }
 
-        /* #1 — exaggerated, full-width */
+        /* #1 — exaggerated, full-width. Gap is 12px (mobile-first) instead
+           of the 16px used at desktop width and up - a 25% cut requested
+           for mobile only, between the ambassador name and their count. */
         .hero {
-          display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px;
+          display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px;
           background: rgba(0,0,0,0.45); border: 1px solid var(--rebel-red); border-radius: 0;
           padding: 16px 20px;
         }
+        @media (min-width: 768px) {
+          .hero { gap: 16px; }
+        }
         .heroRank {
-          font-family: var(--font-mono); font-weight: 700; color: var(--rebel-red); font-size: 20px;
+          font-family: var(--font-body); font-weight: 700; color: var(--rebel-red); font-size: 20px;
         }
         .heroName { font-weight: 700; font-size: clamp(18px, 4.5vw, 24px); }
         .heroCount {
-          font-family: var(--font-mono); font-weight: 700; font-size: clamp(24px, 6vw, 30px);
+          font-family: var(--font-body); font-weight: 700; font-size: clamp(24px, 6vw, 30px);
           color: var(--rebel-red); font-variant-numeric: tabular-nums;
         }
 
@@ -335,11 +352,11 @@ export default function LeaderboardClient() {
           padding: 12px 14px;
         }
         .podiumRank {
-          font-family: var(--font-mono); font-weight: 700; color: var(--rebel-red); font-size: 16px;
+          font-family: var(--font-body); font-weight: 700; color: var(--rebel-red); font-size: 16px;
         }
         .podiumName { font-weight: 600; font-size: 16px; }
         .podiumCount {
-          font-family: var(--font-mono); font-weight: 700; font-size: 21px; color: var(--rebel-red);
+          font-family: var(--font-body); font-weight: 700; font-size: 21px; color: var(--rebel-red);
           font-variant-numeric: tabular-nums;
         }
 
@@ -353,18 +370,18 @@ export default function LeaderboardClient() {
         .tier-purple { border-color: var(--amber); }
         .tier-white { border-color: var(--ivory); }
         .rank {
-          font-family: var(--font-mono); font-weight: 700; color: rgba(255,255,255,0.5); font-size: 15px;
+          font-family: var(--font-body); font-weight: 700; color: rgba(255,255,255,0.5); font-size: 15px;
         }
         .tier-purple .rank, .tier-purple .count { color: var(--amber); }
         .tier-white .rank, .tier-white .count { color: var(--ivory); }
         .divider {
-          text-align: center; color: var(--ivory); font-family: var(--font-mono);
+          text-align: center; color: var(--ivory); font-family: var(--font-body);
           font-size: 12px; letter-spacing: 0.02em; padding: 10px 8px 2px;
           border-top: 1px solid rgba(255,255,255,0.15); margin-top: 2px;
         }
         .name { font-weight: 600; font-size: 15px; }
         .count {
-          font-family: var(--font-mono); font-weight: 700; font-size: 18px;
+          font-family: var(--font-body); font-weight: 700; font-size: 18px;
           font-variant-numeric: tabular-nums;
         }
       `}</style>
