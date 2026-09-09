@@ -121,7 +121,10 @@ export default function FindLinkForm() {
             color: rgba(255,255,255,0.5); margin: 0 0 8px;
           }
           .signupsEmpty { font-size: 13px; color: rgba(255,255,255,0.5); margin: 0; }
-          .signupsList { list-style: none; margin: 0; padding: 0; max-height: 240px; overflow-y: auto; }
+          .signupsList {
+            list-style: none; margin: 0; padding: 0 14px 0 0; max-height: 240px; overflow-y: auto;
+            scrollbar-gutter: stable;
+          }
           .signupsList li {
             display: flex; justify-content: space-between; gap: 12px; padding: 9px 0;
             border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px;
