@@ -206,6 +206,7 @@ export default async function AdminPage({
           font-weight: 700;
           font-size: 30px;
           font-variant-numeric: tabular-nums;
+          text-align: center;
         }
         .stat-accent .statNum { color: var(--rebel-red); }
         .stat-good .statNum { color: #5fd576; }
