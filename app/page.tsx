@@ -23,7 +23,7 @@ export default function Home() {
         Lost your link?
       </h1>
       <p style={{ color: "rgba(255,255,255,0.7)", maxWidth: 420, marginBottom: 24 }}>
-        If you're already an ambassador, enter the email you signed up with and we'll find it.
+        Enter the email you signed up with — we'll pull your link and show you everyone you've signed up so far.
       </p>
       <FindLinkForm />
       <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, marginTop: 28 }}>
