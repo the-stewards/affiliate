@@ -9,6 +9,11 @@ export const dynamic = "force-dynamic";
 // changes — it's a marketing number, not infra config.
 const RSVP_GOAL = 2500;
 
+// Campaign window for the pace tracker below. Update alongside RSVP_GOAL if
+// the launch date ever moves.
+const CAMPAIGN_START = new Date("2026-09-09T00:00:00Z");
+const CAMPAIGN_END = new Date("2026-10-21T00:00:00Z");
+
 export default async function AdminPage({
   searchParams,
 }: {
@@ -39,6 +44,17 @@ export default async function AdminPage({
   ]);
 
   const stats = counts[0];
+
+  // Linear pace: what fraction of the campaign window has elapsed vs. what
+  // fraction of the goal that implies. Clamped so a pre-launch or
+  // post-deadline view doesn't divide by zero or show a nonsense percentage.
+  const totalMs = CAMPAIGN_END.getTime() - CAMPAIGN_START.getTime();
+  const elapsedMs = Math.min(Math.max(Date.now() - CAMPAIGN_START.getTime(), 0), totalMs);
+  const expectedToDate = Math.round(RSVP_GOAL * (elapsedMs / totalMs));
+  const paceDelta = stats.rsvp_count - expectedToDate;
+
+  const daysRemaining = Math.max(1, Math.ceil((CAMPAIGN_END.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+  const neededPerDay = Math.max(0, RSVP_GOAL - stats.rsvp_count) / daysRemaining;
 
   return (
     <main className="wrap">
@@ -71,6 +87,17 @@ export default async function AdminPage({
         <div className="stat stat-accent">
           <span className="statLabel">Spots left of {RSVP_GOAL.toLocaleString()}</span>
           <span className="statNum">{Math.max(0, RSVP_GOAL - stats.rsvp_count).toLocaleString()}</span>
+        </div>
+        <div className={paceDelta >= 0 ? "stat stat-good" : "stat stat-accent"}>
+          <span className="statLabel">Pace vs. straight-line to 10/21</span>
+          <span className="statNum">
+            {paceDelta >= 0 ? "+" : ""}
+            {paceDelta.toLocaleString()}
+          </span>
+        </div>
+        <div className="stat">
+          <span className="statLabel">Needed/day to hit goal</span>
+          <span className="statNum">{Math.ceil(neededPerDay).toLocaleString()}</span>
         </div>
       </div>
 
@@ -181,6 +208,7 @@ export default async function AdminPage({
           font-variant-numeric: tabular-nums;
         }
         .stat-accent .statNum { color: var(--rebel-red); }
+        .stat-good .statNum { color: #5fd576; }
         .banner {
           font-family: var(--font-mono);
           font-size: 13px;
