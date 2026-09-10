@@ -349,7 +349,7 @@ function RsvpForm({
           border-radius: 999px; padding: 9px 16px 9px 14px;
         }
         .pulse {
-          width: 8px; height: 8px; border-radius: 50%; background: var(--rebel-red);
+          width: 8px; height: 8px; border-radius: 50%; background: var(--amber);
           flex-shrink: 0; animation: headcountPulse 1.6s ease-in-out infinite;
         }
         @keyframes headcountPulse {
