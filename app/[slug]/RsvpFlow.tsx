@@ -399,17 +399,17 @@ function RsvpForm({
         form.condensed .field input {
           background: transparent; border: 1px solid var(--ivory); border-radius: 0;
           color: var(--ivory); padding: 18px 16px;
-          font-family: var(--font-display); font-size: 15px; letter-spacing: 0.04em;
+          font-family: var(--font-display); font-size: 15px; letter-spacing: 0.16em;
         }
         form.condensed .field input::placeholder {
           color: var(--ivory); font-family: var(--font-display);
-          text-transform: uppercase; letter-spacing: 0.04em;
+          text-transform: uppercase; letter-spacing: 0.16em;
         }
         form.condensed .field input:focus { border-color: var(--rebel-red); }
         form.condensed .checkboxField { color: rgba(255,255,255,0.7); }
         form.condensed .cta {
           border-radius: 0; padding: 18px; font-family: var(--font-display);
-          font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase;
+          font-size: 18px; letter-spacing: 0.18em; text-transform: uppercase;
           font-weight: normal;
         }
         form.condensed .headcountPill {
@@ -785,11 +785,11 @@ function SignupForm({
         form.condensed .field input {
           background: transparent; border: 1px solid var(--ivory); border-radius: 0;
           color: var(--ivory); padding: 18px 16px;
-          font-family: var(--font-display); font-size: 15px; letter-spacing: 0.04em;
+          font-family: var(--font-display); font-size: 15px; letter-spacing: 0.16em;
         }
         form.condensed .field input::placeholder {
           color: var(--ivory); font-family: var(--font-display);
-          text-transform: uppercase; letter-spacing: 0.04em;
+          text-transform: uppercase; letter-spacing: 0.16em;
         }
         form.condensed .field input:focus { border-color: var(--rebel-red); }
         form.condensed .slugRow {
@@ -803,7 +803,7 @@ function SignupForm({
         }
         form.condensed .cta {
           border-radius: 0; font-family: var(--font-display); font-size: 18px;
-          letter-spacing: 0.06em; text-transform: uppercase; padding: 18px;
+          letter-spacing: 0.18em; text-transform: uppercase; padding: 18px;
           font-weight: normal;
         }
       `}</style>
