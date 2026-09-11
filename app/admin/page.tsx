@@ -14,12 +14,27 @@ const RSVP_GOAL = 2500;
 const CAMPAIGN_START = new Date("2026-09-09T00:00:00Z");
 const CAMPAIGN_END = new Date("2026-10-21T00:00:00Z");
 
+// Small fixed-size trend line next to the Pace stat, so "ahead/behind" reads
+// as a snapshot alongside whether that gap is growing or shrinking - not
+// just a single number in isolation.
+const SPARK_W = 100;
+const SPARK_H = 28;
+
+function sparklinePoints(values: number[]): string {
+  if (values.length < 2) return "";
+  const max = Math.max(...values, 1);
+  const stepX = SPARK_W / (values.length - 1);
+  return values
+    .map((v, i) => `${(i * stepX).toFixed(1)},${(SPARK_H - (v / max) * SPARK_H).toFixed(1)}`)
+    .join(" ");
+}
+
 export default async function AdminPage({
   searchParams,
 }: {
   searchParams: { error?: string; success?: string };
 }) {
-  const [affiliateRows, rsvpRows, counts] = await Promise.all([
+  const [affiliateRows, rsvpRows, counts, dailyRows] = await Promise.all([
     sql`
       select a.slug, a.display_name, a.email, a.created_at, a.hidden_from_leaderboard,
         ref.slug as referred_by_slug,
@@ -41,9 +56,27 @@ export default async function AdminPage({
         (select count(*)::int from rsvps) as rsvp_count,
         (select count(*)::int from rsvps where created_at > now() - interval '1 hour') as rsvp_last_hour
     `,
+    // One row per day from campaign start through today, zero-filled where
+    // no RSVPs came in - generate_series is what supplies the zero days
+    // rather than them just being missing from the result.
+    sql`
+      select coalesce(c.n, 0)::int as n
+      from generate_series(
+        date_trunc('day', ${CAMPAIGN_START}::timestamptz),
+        date_trunc('day', now()),
+        interval '1 day'
+      ) as gs(day)
+      left join (
+        select date_trunc('day', created_at) as day, count(*)::int as n
+        from rsvps
+        group by 1
+      ) c on c.day = gs.day
+      order by gs.day
+    `,
   ]);
 
   const stats = counts[0];
+  const dailyCounts = (dailyRows as { n: number }[]).map((r) => r.n);
 
   // Linear pace: what fraction of the campaign window has elapsed vs. what
   // fraction of the goal that implies. Clamped so a pre-launch or
@@ -66,6 +99,9 @@ export default async function AdminPage({
         <div className="topActions">
           <a href="/admin/export/affiliates" className="exportBtn">
             Export ambassador list (CSV)
+          </a>
+          <a href="/admin/export/rsvps" className="exportBtn">
+            Export RSVP list (CSV)
           </a>
           <AutoRefresh />
         </div>
@@ -90,6 +126,11 @@ export default async function AdminPage({
         </div>
         <div className={paceDelta >= 0 ? "stat stat-good" : "stat stat-accent"}>
           <span className="statLabel">Pace vs. straight-line to 10/21</span>
+          {dailyCounts.length >= 2 && (
+            <svg className="sparkline" viewBox={`0 0 ${SPARK_W} ${SPARK_H}`} preserveAspectRatio="none">
+              <polyline points={sparklinePoints(dailyCounts)} fill="none" strokeWidth="2" />
+            </svg>
+          )}
           <span className="statNum">
             {paceDelta >= 0 ? "+" : ""}
             {paceDelta.toLocaleString()}
@@ -211,6 +252,9 @@ export default async function AdminPage({
         }
         .stat-accent .statNum { color: var(--rebel-red); }
         .stat-good .statNum { color: #5fd576; }
+        .sparkline { width: 100%; height: 20px; display: block; margin-top: 4px; }
+        .stat-good .sparkline polyline { stroke: #5fd576; }
+        .stat-accent .sparkline polyline { stroke: var(--rebel-red); }
         .banner {
           font-family: var(--font-mono);
           font-size: 13px;

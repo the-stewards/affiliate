@@ -114,30 +114,32 @@ export default async function AffiliateDetailPage({
             <h2>Referred affiliates ({referred.length})</h2>
           </div>
           <div className="sectionBody">
-            <table>
-              <thead>
-                <tr>
-                  <th>Slug</th>
-                  <th>Name</th>
-                  <th>RSVPs</th>
-                  <th>Joined</th>
-                </tr>
-              </thead>
-              <tbody>
-                {referred.map((r: any) => (
-                  <tr key={r.slug}>
-                    <td>
-                      <Link href={`/admin/${r.slug}`} className="rowLink">
-                        {r.slug}
-                      </Link>
-                    </td>
-                    <td>{r.display_name}</td>
-                    <td>{r.rsvp_count}</td>
-                    <td>{new Date(r.created_at).toLocaleDateString()}</td>
+            <div className="tableScroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Slug</th>
+                    <th>Name</th>
+                    <th>RSVPs</th>
+                    <th>Joined</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {referred.map((r: any) => (
+                    <tr key={r.slug}>
+                      <td>
+                        <Link href={`/admin/${r.slug}`} className="rowLink">
+                          {r.slug}
+                        </Link>
+                      </td>
+                      <td>{r.display_name}</td>
+                      <td>{r.rsvp_count}</td>
+                      <td>{new Date(r.created_at).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
       )}
@@ -266,7 +268,8 @@ export default async function AffiliateDetailPage({
           text-transform: uppercase;
         }
         .sectionBody { padding: 0 20px 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .tableScroll { overflow-x: auto; }
+        table { width: 100%; min-width: 480px; border-collapse: collapse; font-size: 14px; }
         thead th {
           background: var(--ink);
           color: var(--ivory);

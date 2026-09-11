@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useIframeAutoResize } from "../useIframeAutoResize";
+import { isValidEmail } from "@/lib/validate";
 
 type Step = "rsvp" | "offer" | "games-detail" | "signup" | "signup-success";
 
@@ -211,8 +212,20 @@ function RsvpForm({
   const honeypotRef = useRef<HTMLInputElement>(null);
   const displayCount = useCountUp(totalRsvpCount ?? 0);
 
+  function validate(): string | null {
+    if (!firstName.trim() || !lastName.trim()) return "Enter your first and last name.";
+    if (!email.trim() || !isValidEmail(email.trim())) return "Enter a valid email address.";
+    if (phone.trim() && !smsConsent) return "Check the box to consent to texts, or leave the phone number blank.";
+    return null;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const validationError = validate();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -247,7 +260,7 @@ function RsvpForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className={condensed ? "condensed" : undefined}>
+    <form onSubmit={handleSubmit} noValidate className={condensed ? "condensed" : undefined}>
       {!condensed && <h2 className="title">Save your seat</h2>}
       {/* Hidden until the count is actually impressive - a low number here
           undercuts the social proof it's meant to create. */}

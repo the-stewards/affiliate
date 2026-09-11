@@ -142,8 +142,11 @@ function Table<T extends { _key: string }>({
           background: var(--ivory);
         }
         .search:focus { outline: 2px solid var(--amber); outline-offset: 1px; }
-        .tableScroll { max-height: 480px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        .tableScroll {
+          max-height: 480px; overflow-y: auto; overflow-x: auto;
+          border: 1px solid var(--line); border-radius: 10px;
+        }
+        table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 14px; }
         thead th {
           position: sticky;
           top: 0;

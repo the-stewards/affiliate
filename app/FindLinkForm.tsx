@@ -31,6 +31,7 @@ export default function FindLinkForm() {
     signups: { firstName: string; lastName: string; createdAt: string }[];
   } | null>(null);
   const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">("idle");
+  const [shareStatus, setShareStatus] = useState<"idle" | "copied" | "failed">("idle");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -69,15 +70,50 @@ export default function FindLinkForm() {
     setTimeout(() => setCopyStatus("idle"), 2500);
   }
 
+  // Native share sheet on mobile (AirDrop/Messages/Instagram/etc.) when
+  // available; desktop browsers without navigator.share fall back to
+  // copying the same message, so there's always a working action here.
+  async function handleShare(link: string, count: number) {
+    const fullUrl = `https://${link}`;
+    const text =
+      count > 0
+        ? `I've got ${count} ${count === 1 ? "person" : "people"} coming to Rebel 2027 so far — come save your seat:`
+        : "Come save your seat for Rebel 2027 — use my link:";
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ text, url: fullUrl });
+      } catch {
+        // User cancelled the share sheet — not an error, nothing to show.
+      }
+      return;
+    }
+
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(`${text} ${fullUrl}`);
+      ok = true;
+    } catch {
+      ok = copyToClipboard(`${text} ${fullUrl}`);
+    }
+    setShareStatus(ok ? "copied" : "failed");
+    setTimeout(() => setShareStatus("idle"), 2500);
+  }
+
   if (result) {
     const link = `www.therebelevent.com/?ref=${result.slug}`;
     return (
       <div className="findLink">
         <p className="found">Found it, {result.displayName.split(" ")[0]}</p>
         <div className="linkBox">{link}</div>
-        <button type="button" className="copyBtn" onClick={() => handleCopy(link)}>
-          {copyStatus === "copied" ? "Copied ✓" : copyStatus === "failed" ? "Couldn't copy — select above" : "Copy link"}
-        </button>
+        <div className="actionRow">
+          <button type="button" className="shareBtn" onClick={() => handleShare(link, result.signups.length)}>
+            {shareStatus === "copied" ? "Copied ✓" : shareStatus === "failed" ? "Couldn't copy" : "Share my link"}
+          </button>
+          <button type="button" className="copyBtn" onClick={() => handleCopy(link)}>
+            {copyStatus === "copied" ? "Copied ✓" : copyStatus === "failed" ? "Couldn't copy — select above" : "Copy link"}
+          </button>
+        </div>
 
         <div className="signups">
           <p className="signupsTitle">
@@ -109,12 +145,19 @@ export default function FindLinkForm() {
             border: 1px solid var(--ivory); border-radius: 0; padding: 12px 16px; font-size: 15px;
             word-break: break-all; width: 100%; max-width: 340px;
           }
-          .copyBtn {
+          .actionRow { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+          .copyBtn, .shareBtn {
             font-family: var(--font-display); font-size: 14px; letter-spacing: 0.04em;
-            text-transform: uppercase; padding: 10px 18px; border-radius: 0; border: 1px solid var(--ivory);
-            background: transparent; color: var(--ivory); cursor: pointer;
+            text-transform: uppercase; padding: 10px 18px; border-radius: 0; cursor: pointer;
+          }
+          .copyBtn {
+            border: 1px solid var(--ivory); background: transparent; color: var(--ivory);
           }
           .copyBtn:hover { border-color: var(--rebel-red); color: var(--rebel-red); }
+          .shareBtn {
+            border: 1px solid var(--rebel-red); background: var(--rebel-red); color: #fff;
+          }
+          .shareBtn:hover { filter: brightness(1.08); }
           .signups { width: 100%; max-width: 340px; margin-top: 18px; text-align: left; }
           .signupsTitle {
             font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
