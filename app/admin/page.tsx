@@ -14,6 +14,14 @@ const RSVP_GOAL = 2500;
 const CAMPAIGN_START = new Date("2026-09-09T00:00:00Z");
 const CAMPAIGN_END = new Date("2026-10-21T00:00:00Z");
 
+// Source attribution buckets, per Ryan: how many RSVPs came in through
+// generic marketing (the house "rebel" slug - the no-ref fallback used on
+// the Squarespace hub page), through the core team's own links, vs. through
+// everyone else's ambassador links. Update this list if the team roster
+// changes.
+const MARKETING_SLUG = "rebel";
+const TEAM_SLUGS = ["justin", "kreg", "nick", "ryan", "juliew"];
+
 // Small fixed-size trend line next to the Pace stat, so "ahead/behind" reads
 // as a snapshot alongside whether that gap is growing or shrinking - not
 // just a single number in isolation.
@@ -89,6 +97,18 @@ export default async function AdminPage({
   const daysRemaining = Math.max(1, Math.ceil((CAMPAIGN_END.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
   const neededPerDay = Math.max(0, RSVP_GOAL - stats.rsvp_count) / daysRemaining;
 
+  // Ambassador count is "everyone else" derived from the total, rather than
+  // summed from the affiliate list directly, so it's always consistent with
+  // the Total RSVPs stat above even if a slug in the other two buckets gets
+  // renamed or removed.
+  const rows = affiliateRows as { slug: string; rsvp_count: number }[];
+  const marketingCount = rows.find((a) => a.slug.toLowerCase() === MARKETING_SLUG)?.rsvp_count ?? 0;
+  const teamCount = rows
+    .filter((a) => TEAM_SLUGS.includes(a.slug.toLowerCase()))
+    .reduce((sum, a) => sum + a.rsvp_count, 0);
+  const ambassadorCount = Math.max(0, stats.rsvp_count - marketingCount - teamCount);
+  const sourcePct = (n: number) => (stats.rsvp_count > 0 ? Math.round((n / stats.rsvp_count) * 100) : 0);
+
   return (
     <main className="wrap">
       <div className="topRow">
@@ -139,6 +159,25 @@ export default async function AdminPage({
         <div className="stat">
           <span className="statLabel">Needed/day to hit goal</span>
           <span className="statNum">{Math.ceil(neededPerDay).toLocaleString()}</span>
+        </div>
+      </div>
+
+      <p className="sourcesLabel">RSVP sources</p>
+      <div className="stats sourceStats">
+        <div className="stat stat-marketing">
+          <span className="statLabel">Marketing ({MARKETING_SLUG})</span>
+          <span className="statNum">{marketingCount.toLocaleString()}</span>
+          <span className="statPct">{sourcePct(marketingCount)}% of total</span>
+        </div>
+        <div className="stat stat-team">
+          <span className="statLabel">Team ({TEAM_SLUGS.length})</span>
+          <span className="statNum">{teamCount.toLocaleString()}</span>
+          <span className="statPct">{sourcePct(teamCount)}% of total</span>
+        </div>
+        <div className="stat stat-ambassadors">
+          <span className="statLabel">Ambassadors (everyone else)</span>
+          <span className="statNum">{ambassadorCount.toLocaleString()}</span>
+          <span className="statPct">{sourcePct(ambassadorCount)}% of total</span>
         </div>
       </div>
 
@@ -255,6 +294,24 @@ export default async function AdminPage({
         .sparkline { width: 100%; height: 20px; display: block; margin-top: 4px; }
         .stat-good .sparkline polyline { stroke: #5fd576; }
         .stat-accent .sparkline polyline { stroke: var(--rebel-red); }
+        .sourcesLabel {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: var(--slate);
+          margin: 0 0 8px;
+        }
+        .sourceStats { margin-bottom: 24px; }
+        .statPct {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          color: rgba(255,255,255,0.5);
+          text-align: center;
+        }
+        .stat-marketing .statNum { color: var(--amber); }
+        .stat-team .statNum { color: #ffd60a; }
+        .stat-ambassadors .statNum { color: var(--rebel-red); }
         .banner {
           font-family: var(--font-mono);
           font-size: 13px;
