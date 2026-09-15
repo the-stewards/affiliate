@@ -21,6 +21,8 @@ const CAMPAIGN_END = new Date("2026-10-21T00:00:00Z");
 // changes.
 const MARKETING_SLUG = "rebel";
 const TEAM_SLUGS = ["justin", "kreg", "nick", "ryan", "juliew"];
+// Individual marketing-channel slugs, each broken out into its own card.
+const CHANNEL_SLUGS = ["email", "sms", "social"];
 
 // Small fixed-size trend line next to the Pace stat, so "ahead/behind" reads
 // as a snapshot alongside whether that gap is growing or shrinking - not
@@ -106,7 +108,11 @@ export default async function AdminPage({
   const teamCount = rows
     .filter((a) => TEAM_SLUGS.includes(a.slug.toLowerCase()))
     .reduce((sum, a) => sum + a.rsvp_count, 0);
-  const ambassadorCount = Math.max(0, stats.rsvp_count - marketingCount - teamCount);
+  const channelCounts = CHANNEL_SLUGS.map(
+    (slug) => rows.find((a) => a.slug.toLowerCase() === slug)?.rsvp_count ?? 0
+  );
+  const channelTotal = channelCounts.reduce((sum, n) => sum + n, 0);
+  const ambassadorCount = Math.max(0, stats.rsvp_count - marketingCount - teamCount - channelTotal);
   const sourcePct = (n: number) => (stats.rsvp_count > 0 ? Math.round((n / stats.rsvp_count) * 100) : 0);
 
   return (
@@ -174,6 +180,15 @@ export default async function AdminPage({
           <span className="statNum">{teamCount.toLocaleString()}</span>
           <span className="statPct">{sourcePct(teamCount)}% of total</span>
         </div>
+        {CHANNEL_SLUGS.map((slug, i) => (
+          <div key={slug} className="stat stat-channel">
+            <span className="statLabel">
+              {slug.charAt(0).toUpperCase() + slug.slice(1)} (/{slug})
+            </span>
+            <span className="statNum">{channelCounts[i].toLocaleString()}</span>
+            <span className="statPct">{sourcePct(channelCounts[i])}% of total</span>
+          </div>
+        ))}
         <div className="stat stat-ambassadors">
           <span className="statLabel">Ambassadors (everyone else)</span>
           <span className="statNum">{ambassadorCount.toLocaleString()}</span>
@@ -311,6 +326,7 @@ export default async function AdminPage({
         }
         .stat-marketing .statNum { color: var(--amber); }
         .stat-team .statNum { color: #ffd60a; }
+        .stat-channel .statNum { color: #5fd576; }
         .stat-ambassadors .statNum { color: var(--rebel-red); }
         .banner {
           font-family: var(--font-mono);
