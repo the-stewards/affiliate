@@ -23,7 +23,18 @@ alter table affiliates add column if not exists hidden_from_leaderboard boolean 
 -- collision and never surface as "affiliates_slug_lower_idx", breaking the
 -- collision-retry logic in app/api/affiliates/route.ts that matches on it.
 create unique index if not exists affiliates_slug_lower_idx on affiliates (lower(slug));
-create unique index if not exists affiliates_email_lower_idx on affiliates (lower(email));
+
+-- Email uniqueness excludes marketing@therebelevent.com by name - the
+-- house/marketing inbox, which legitimately needs to register as an
+-- affiliate more than once (e.g. multiple marketing-channel slugs) without
+-- tripping the "this email is already registered" collision path in
+-- app/api/affiliates/route.ts. Every other email is still globally unique.
+-- Dropped and recreated (not "if not exists") because the predicate
+-- changed - an existing index with the old no-predicate definition would
+-- otherwise silently stick around unchanged.
+drop index if exists affiliates_email_lower_idx;
+create unique index affiliates_email_lower_idx on affiliates (lower(email))
+  where lower(email) <> 'marketing@therebelevent.com';
 
 create table if not exists rsvps (
   id              bigserial primary key,
