@@ -22,7 +22,7 @@ const CAMPAIGN_END = new Date("2026-10-21T00:00:00Z");
 const MARKETING_SLUG = "rebel";
 const TEAM_SLUGS = ["justin", "kreg", "nick", "ryan", "juliew"];
 // Individual marketing-channel slugs, each broken out into its own card.
-const CHANNEL_SLUGS = ["email", "sms", "social"];
+const CHANNEL_SLUGS = ["email", "sms", "social", "ad"];
 
 // Small fixed-size trend line next to the Pace stat, so "ahead/behind" reads
 // as a snapshot alongside whether that gap is growing or shrinking - not
