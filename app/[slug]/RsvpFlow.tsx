@@ -215,7 +215,8 @@ function RsvpForm({
   function validate(): string | null {
     if (!firstName.trim() || !lastName.trim()) return "Enter your first and last name.";
     if (!email.trim() || !isValidEmail(email.trim())) return "Enter a valid email address.";
-    if (phone.trim() && !smsConsent) return "Check the box to consent to texts, or leave the phone number blank.";
+    if (!phone.trim()) return "Enter your phone number.";
+    if (!smsConsent) return "Check the box to consent to texts.";
     return null;
   }
 
@@ -325,8 +326,9 @@ function RsvpForm({
         />
       </label>
       <label className="field">
-        <span className="fieldLabel">Phone (optional)</span>
+        <span className="fieldLabel">Phone</span>
         <input
+          required
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
@@ -334,17 +336,15 @@ function RsvpForm({
         />
       </label>
 
-      {phone && (
-        <label className="checkboxField">
-          <input
-            type="checkbox"
-            required
-            checked={smsConsent}
-            onChange={(e) => setSmsConsent(e.target.checked)}
-          />
-          <span>I agree to receive event updates by text at the number above.</span>
-        </label>
-      )}
+      <label className="checkboxField">
+        <input
+          type="checkbox"
+          required
+          checked={smsConsent}
+          onChange={(e) => setSmsConsent(e.target.checked)}
+        />
+        <span>I agree to receive event updates by text at the number above.</span>
+      </label>
 
       {error && <p className="error">{error}</p>}
 

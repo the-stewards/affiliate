@@ -29,9 +29,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !affiliateSlug?.trim()) {
+  if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !phone?.trim() || !affiliateSlug?.trim()) {
     return NextResponse.json(
-      { error: "First name, last name, email, and affiliate are required." },
+      { error: "First name, last name, email, phone, and affiliate are required." },
       { status: 400 }
     );
   }
@@ -42,11 +42,11 @@ export async function POST(req: NextRequest) {
 
   // The checkbox is only required client-side by HTML form validation, which
   // a direct API call can skip - this is the compliance backstop that
-  // actually matters, since providing a phone number without consent isn't
-  // something that should be storable at all.
-  if (phone?.trim() && !smsConsent) {
+  // actually matters, since phone is now itself required, storing a phone
+  // number without consent isn't something that should ever happen.
+  if (!smsConsent) {
     return NextResponse.json(
-      { error: "Please check the box to consent to texts, or leave the phone number blank." },
+      { error: "Please check the box to consent to texts." },
       { status: 400 }
     );
   }
